@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blogs | Clicksone Insights</title>
+  <meta name="description" content="Insights from the Clicksone team on branding, pitch decks, UI/UX, websites and video.">
+  <meta name="theme-color" content="#60449B">
+  <link rel="icon" href="assets/brand/emblem.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script>document.documentElement.classList.add('js')</script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+  <script src="assets/js/partials.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body data-page="blogs">
+  <a class="skip" href="#main">Skip to content</a>
+  <div data-partial="header"></div>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="crumbs load-up" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Blogs</span></nav>
+        <p class="eyebrow load-up">Blogs</p>
+        <h1 class="load-up" style="--d:.08s">Insights From the Clicksone Team</h1>
+        <p class="load-up" style="--d:.16s">Practical notes on branding, pitch decks, product design, websites and video for startups and growing brands.</p>
+        
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div class="blog-grid" id="blog-grid"></div>
+      </div>
+    </section>
+    <script>
+      // Blog cards reuse project mockups. Replace "soon" with an href when an article is published.
+      document.addEventListener('DOMContentLoaded', () => {
+        const { PROJECTS, mock } = window.CS;
+        const posts = [
+          ['ageofai', 'Pitch Decks', 'What Investors Look for in a Pitch Deck', 'How to structure the story, numbers and visuals so every slide earns its place.'],
+          ['roshan', 'Branding', 'Building a Brand Identity That Scales', 'From logo to guidelines: the pieces that keep a growing team on-brand.'],
+          ['basedrop', 'UI/UX', 'Running a UX Audit Before You Redesign', 'Find the friction first, then decide what actually needs to change.'],
+          ['lending', 'Web', 'Landing Pages That Turn Visitors Into Leads', 'Clear messaging, one goal per page and fast load times.'],
+          ['reels', 'Video', 'Short-Form Video for Founders', 'Talking-head edits, captions and motion graphics that hold attention.'],
+          ['editorial', 'Editorial', 'Designing Books People Want to Read', 'Covers, grids and typography choices for print and eBook.'],
+        ];
+        document.getElementById('blog-grid').innerHTML = posts.map(([id, cat, t, d], i) => {
+          const p = PROJECTS.find(x => x.id === id);
+          return '<article class="post reveal is-in" style="--d:' + (i * .06) + 's"><div class="post-media">' + mock(p) + '</div>' +
+            '<p class="post-meta"><span class="cat">' + cat + '</span><span>5 min read</span></p><h3>' + t + '</h3><p>' + d + '</p><p class="soon">Coming soon</p></article>';
+        }).join('');
+      });
+    </script>
+    <div data-partial="cta-banner"></div>
+    <div data-partial="ask-ai"></div>
+  </main>
+
+  <div data-partial="footer"></div>
+</body>
+</html>

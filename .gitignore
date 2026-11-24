@@ -1,0 +1,9 @@
+# Word lock files and working documents
+~$*
+*.docx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.claude/settings.local.json
