@@ -1,6 +1,6 @@
 # Clicksone Portfolio Website
 
-Website for Clicksone, a creative design agency (branding, UI/UX, web, pitch decks, editorial and video).
+Website for ClicksOne, a creative design agency (branding, UI/UX, web, pitch decks, editorial and video).
 
 ## Pages
 
