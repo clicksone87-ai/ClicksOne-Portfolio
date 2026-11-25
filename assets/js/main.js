@@ -386,14 +386,10 @@ function initWork() {
   const tabsEl = $('.tabs'), ind = $('.tab-ind', tabsEl || document);
   const tabs = $$('.tabs .tab');
   const cards = $$('.work-card', grid);
-  const quote = $('.work-quote', grid);
-  const quoteAt = +grid.dataset.quoteAt;
-  const colA = document.createElement('div'), colB = document.createElement('div');
-  colA.className = 'wcol wcol-a'; colB.className = 'wcol wcol-b';
-  grid.append(colA, colB);
-  const AR = ['4 / 5', '5 / 4', '5 / 4', '4 / 5']; // tall, wide, wide, tall → mosaic across two columns
-  const one = matchMedia('(max-width: 640px)');
-  let key = 'all';
+  const limit = +grid.dataset.limit || 0;      // home: fixed number of cards + link to the Work page
+  const per = +grid.dataset.perPage || 0;      // work page: cards per "View More Work" step
+  const loadBtn = $('.work-load');
+  let key = 'all', pages = 1;
 
   const measureTags = () => $$('.work-tag', grid).forEach(t => {
     const l = $('.wt-label', t);
@@ -406,34 +402,30 @@ function initWork() {
     ind.style.setProperty('--tx', `${a.offsetLeft}px`);
     ind.style.setProperty('--tw', `${a.offsetWidth}px`);
   };
-  const layout = animate => {
-    const limit = +grid.dataset.limit || Infinity;
-    const vis = cards.filter(c => key === 'all' || c.dataset.cat === key).slice(0, limit);
-    const items = vis.slice();
-    if (quote && key === 'all' && quoteAt >= 0) items.splice(quoteAt, 0, quote);
+  const layout = (animate, from = 0) => {
+    const all = cards.filter(c => key === 'all' || c.dataset.cat === key);
+    const max = limit || (per ? per * pages : Infinity);
+    const vis = all.slice(0, max);
     cards.forEach(c => c.classList.toggle('is-hidden', !vis.includes(c)));
-    if (quote) quote.classList.toggle('is-hidden', key !== 'all');
-    items.forEach((el, k) => {
-      if (el !== quote) $('.work-media', el).style.aspectRatio = one.matches ? '4 / 3' : AR[k % 4]; // even cards on phones
-      (one.matches || k % 2 === 0 ? colA : colB).appendChild(el);
-      if (!animate) { el.classList.add('reveal'); el.style.setProperty('--d', `${(k % 2) * .08}s`); }
-      else if (!reduced) { el.classList.remove('is-entering'); void el.offsetWidth; el.style.setProperty('--d', `${k * .05}s`); el.classList.add('is-entering'); }
+    if (loadBtn) loadBtn.closest('.work-more').hidden = all.length <= max;
+    vis.forEach((el, k) => {
+      if (!animate) { el.classList.add('reveal'); el.style.setProperty('--d', `${(k % 4) * .06}s`); }
+      else if (!reduced && k >= from) { el.classList.remove('is-entering'); void el.offsetWidth; el.style.setProperty('--d', `${(k - from) * .05}s`); el.classList.add('is-entering'); }
     });
-    cards.filter(c => !vis.includes(c)).forEach(c => colA.appendChild(c));
-    if (quote && key !== 'all') colA.appendChild(quote);
     requestAnimationFrame(measureTags);
+    if (window.ScrollTrigger) requestAnimationFrame(() => ScrollTrigger.refresh());
   };
   const apply = k => {
-    key = k;
+    key = k; pages = 1;
     tabs.forEach(t => { const on = t.dataset.filter === key; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
     moveInd();
     layout(true);
   };
+  loadBtn?.addEventListener('click', () => { const from = per * pages; pages++; layout(true, from); });
   layout(false);
   moveInd();
   document.fonts?.ready.then(() => { moveInd(); measureTags(); });
   addEventListener('resize', () => { moveInd(); measureTags(); });
-  one.addEventListener('change', () => layout(false));
   tabs.forEach(t => t.addEventListener('click', () => apply(t.dataset.filter)));
   tabsEl?.addEventListener('keydown', e => {
     const i = tabs.indexOf(document.activeElement);
@@ -481,32 +473,39 @@ function initRing() {
   }).observe(sec);
 }
 
-/* ---------- 11c. About: scroll-driven flip-book (GSAP ScrollTrigger) ----------
-   Pages turn over the spine as you scroll: Strategy → Design → Execution.
-   Without GSAP or with reduced motion, the plain list (.pillars-list) is shown instead. */
+/* ---------- 11c. About: flip-book ----------
+   Click 01 Strategy / 02 Design / 03 Execution to turn to that spread; it also turns on its own while
+   on screen (pauses on hover/focus). No scroll pinning, so nothing overlaps neighbouring sections.
+   Reduced motion or no GSAP: the plain list (.pillars-list) is shown instead. */
 function initFlipbook() {
   const stage = $('.fb-stage');
-  if (!stage || reduced || !window.gsap || !window.ScrollTrigger) return;
-  const leaves = $$('.fb-leaf', stage), steps = $$('.fb-steps li', stage);
+  if (!stage || reduced || !window.gsap) return;
+  const leaves = $$('.fb-leaf', stage), steps = $$('.fb-step', stage);
   document.documentElement.classList.add('has-flipbook');
+  let page = 0, timer = 0, paused = false, visible = false;
   const order = () => leaves.forEach((l, k) => {
     const a = +gsap.getProperty(l, '--a') || 0;
     l.style.zIndex = a > 90 ? 10 + k : 20 - k; // turned pages stack on the left in reading order
   });
-  const tl = gsap.timeline({
-    defaults: { ease: 'power2.inOut', duration: 1 },
-    scrollTrigger: {
-      trigger: stage, start: 'center center', end: () => `+=${innerHeight * 1.6}`,
-      pin: true, scrub: .7, anticipatePin: 1, invalidateOnRefresh: true,
-      onUpdate: self => {
-        const n = Math.min(steps.length - 1, Math.round(self.progress * leaves.length));
-        steps.forEach((s, k) => s.classList.toggle('is-active', k === n));
-      },
-    },
-    onUpdate: order,
-  });
-  leaves.forEach((l, k) => tl.fromTo(l, { '--a': 0 }, { '--a': 180 }, k + .15));
-  tl.to({}, { duration: .3 }); // short rest on the last spread
+  const go = n => {
+    page = (n + steps.length) % steps.length;
+    steps.forEach((s, k) => { const on = k === page; s.classList.toggle('is-active', on); s.setAttribute('aria-pressed', on); });
+    // leaf k is turned when we are past page k; turn them one after another
+    leaves.forEach((l, k) => gsap.to(l, { '--a': page > k ? 180 : 0, duration: .9, ease: 'power2.inOut',
+      delay: page > k ? k * .12 : (leaves.length - 1 - k) * .12, onUpdate: order }));
+    schedule();
+  };
+  const schedule = () => {
+    clearTimeout(timer);
+    if (paused || !visible) return;
+    timer = setTimeout(() => go(page + 1), 4200);
+  };
+  steps.forEach((s, k) => s.addEventListener('click', () => go(k)));
+  stage.addEventListener('mouseenter', () => { paused = true; clearTimeout(timer); });
+  stage.addEventListener('mouseleave', () => { paused = false; schedule(); });
+  stage.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
+  stage.addEventListener('focusout', e => { if (!stage.contains(e.relatedTarget)) { paused = false; schedule(); } });
+  whileVisible(stage, () => { visible = true; schedule(); }, () => { visible = false; clearTimeout(timer); }, .4);
 }
 
 /* ---------- 11d. Services: stacked sticky cards (previous card shrinks + dims) ---------- */
@@ -609,12 +608,14 @@ function initImpact() {
   const fmt = (el, v) => { el.textContent = `${el.dataset.pre}${Math.round(v).toLocaleString('en-US')}${el.dataset.suf}`; };
   const run = () => {
     grid.classList.add('is-live');
+    const token = run.token = (run.token || 0) + 1; // a newer run cancels an older one
     nums.forEach((el, k) => {
       const end = +el.dataset.count;
       if (reduced) return fmt(el, end);
       const dur = 1600, t0 = performance.now() + k * 90 + 300;
       fmt(el, 0);
       const tick = now => {
+        if (run.token !== token) return;
         const p = Math.min(1, Math.max(0, (now - t0) / dur));
         fmt(el, end * (1 - Math.pow(1 - p, 4)));
         if (p < 1) requestAnimationFrame(tick);
@@ -622,8 +623,13 @@ function initImpact() {
       requestAnimationFrame(tick);
     });
   };
-  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { run(); io.disconnect(); } }, { threshold: .3 });
-  io.observe(grid);
+  // count up every time the cards come back into view (not just once), reset when they leave
+  let shown = false;
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !shown) { shown = true; run(); }
+    else if (!e.isIntersecting && e.intersectionRatio === 0) { shown = false; }
+  }, { threshold: [0, .25] }).observe(grid);
+  whileVisible(grid, () => grid.classList.remove('is-off'), () => grid.classList.add('is-off'), 0);
   if (!finePointer || reduced) return;
   $$('[data-tilt-card]', grid).forEach(c => {
     c.addEventListener('pointermove', e => {
@@ -863,7 +869,6 @@ initHero();
 initLogos();
 initCursor();
 initSmooth();
-initRing();
 initFlipbook();
 initStack();
 initBanners();
@@ -876,6 +881,11 @@ initPricing();
 initForm();
 // Honour #anchors that only exist after partials render (e.g. services.html#branding)
 if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) requestAnimationFrame(() => t.scrollIntoView()); }
-// Recalculate pinned sections once fonts and images have settled
-if (window.ScrollTrigger) { document.fonts?.ready.then(() => ScrollTrigger.refresh()); addEventListener('load', () => ScrollTrigger.refresh()); }
+// Recalculate pinned sections whenever the page height settles (fonts, images, filtering)
+if (window.ScrollTrigger) {
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  addEventListener('load', () => ScrollTrigger.refresh());
+  let rt = 0, lastH = 0;
+  new ResizeObserver(() => { const h = document.body.offsetHeight; if (Math.abs(h - lastH) < 2) return; lastH = h; clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 250); }).observe(document.body);
+}
 })();

@@ -376,30 +376,31 @@ const PARTIALS = {
   <div class="hl-track">${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k}" aria-hidden="true">${html}</span>`).join('')}${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k} dup" aria-hidden="true">${html}</span>`).join('')}</div>
 </div>`,
 
-  'cta-banner': () => { const cid = `ctaCircle${++ctaN}`; return `
+  'cta-banner': () => `
 <section class="section-tight">
   <div class="container">
-    <div class="cta-banner reveal">
-      <div class="cta-grid">
-        <div class="cta-copy">
+    <div class="cta-glass reveal">
+      <span class="cg-orb cg-orb-1" aria-hidden="true"></span>
+      <span class="cg-orb cg-orb-2" aria-hidden="true"></span>
+      <div class="cta-banner">
+        <div class="cg-copy">
           ${eyebrow('Book a call')}
           <h2>Need More Than One Service?</h2>
           <p>Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-          <div class="cta-actions">
+          <div class="cg-actions">
             ${btn('Start a Project', SITE.bookUrl, 'primary', 'data-magnetic')}
-            <span class="cta-reply">${avatars(3)}<span>Reply within 24 hours</span></span>
+            <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
           </div>
+          <p class="cg-reply">${avatars(3)}<span>Reply within 24 hours · NDA available on request</span></p>
         </div>
-        <a class="cta-ring" href="${SITE.bookUrl}" aria-label="Book a call">
-          <svg class="cta-ring-text" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="${cid}" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/></defs>
-            <text><textPath href="#${cid}" textLength="500" lengthAdjust="spacing">BOOK A CALL • BOOK A CALL • BOOK A CALL • </textPath></text></svg>
-          <span class="cta-ring-ico">${I.arrowUR}</span>
-        </a>
+        <div class="cg-panel">
+          <p class="cg-panel-title">One team for all of it</p>
+          <ul>${SERVICES.map(s => `<li>${I.check}<span>${s.name}</span></li>`).join('')}</ul>
+        </div>
       </div>
-      <ul class="cta-services" aria-label="Services you can combine">${SERVICES.map(s => `<li>${s.short}</li>`).join('')}</ul>
     </div>
   </div>
-</section>`; },
+</section>`,
 
   slider: (o = {}) => {
     const rowA = ['redbull', 'basedrop', 'goldenline', 'roshan', 'freight', 'lending'];
@@ -431,16 +432,7 @@ const PARTIALS = {
   </div>
 </section>`,
 
-  work: (opts = {}) => {
-    const t = TESTIMONIALS[1];
-    const quote = opts.testimonial ? `
-      <article class="work-quote" data-quote>
-        <p class="eyebrow">Testimonial</p>
-        <blockquote>“I have used this group for over 2 years now with all sorts of different projects and everytime - it is exceptional!”</blockquote>
-        <p class="wq-who"><span class="flag">${FLAG[t.flag]}</span><span><b>${t.place}</b><small>${t.label}</small></span></p>
-        <a class="wq-link" href="${SITE.bookUrl}"><span>Book a call</span><span class="coin">${I.phone}</span></a>
-      </article>` : '';
-    return `
+  work: (opts = {}) => `
 <section class="section" id="work">
   <div class="container">
     ${opts.noHead ? '' : `<div class="split-head work-head">
@@ -451,15 +443,16 @@ const PARTIALS = {
       <span class="tab-ind" aria-hidden="true"></span>
       ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}">${l}</button>`).join('')}
     </div>
-    <div class="work-grid" data-quote-at="${opts.testimonial ? 2 : -1}" data-limit="${opts.limit || 0}">${PROJECTS.map(projectCard).join('')}${quote}</div>
+    <div class="work-grid" data-limit="${opts.limit || 0}" data-per-page="${opts.perPage || 0}">${PROJECTS.map(projectCard).join('')}</div>
+    ${opts.limit ? `<div class="work-more"><a class="btn btn-ghost btn-solo" href="work.html">View More Work</a></div>`
+      : opts.perPage ? `<div class="work-more"><button class="btn btn-ghost btn-solo work-load" type="button">View More Work</button></div>` : ''}
   </div>
 </section>
 <dialog class="work-modal" aria-label="Project details" data-lenis-prevent>
   <button class="modal-x" type="button" aria-label="Close">${I.close}</button>
   <div class="modal-media"></div>
   <div class="modal-body"><p class="eyebrow modal-cat"></p><h3></h3><p class="modal-desc"></p>${btn('Start a Similar Project', SITE.bookUrl)}</div>
-</dialog>`;
-  },
+</dialog>`,
 
   // Rotating "See more work" ring (replaces the old View More Work button on home)
   'more-work': () => {
@@ -490,7 +483,7 @@ const PARTIALS = {
         <div class="fb-leaf" style="z-index:2"><div class="fb-face fb-front">${fbRight(1)}</div><div class="fb-face fb-back">${fbLeft(2)}</div></div>
         <span class="fb-spine"></span>
       </div>
-      <ol class="fb-steps" aria-hidden="true">${PILLARS.map((x, k) => `<li${k === 0 ? ' class="is-active"' : ''}><b>0${k + 1}</b>${x.k}</li>`).join('')}</ol>
+      <div class="fb-steps" role="group" aria-label="Choose a page">${PILLARS.map((x, k) => `<button type="button" class="fb-step${k === 0 ? ' is-active' : ''}" aria-pressed="${k === 0}"><b>0${k + 1}</b>${x.k}</button>`).join('')}</div>
     </div>
     <div class="pillars-list">
       ${PILLARS.map((x, k) => `<article class="pl-item"><p class="pl-k"><b>0${k + 1}</b> ${x.k}</p><h3>${x.h.replace('<br>', ' ')}</h3><p>${x.more}</p><ul>${x.pts.map(t => `<li>${t}</li>`).join('')}</ul></article>`).join('')}
