@@ -510,6 +510,10 @@ function initFlipbook() {
 }
 
 /* ---------- 11d. Services: stacked sticky cards (previous card shrinks + dims) ---------- */
+function initCharacters() {
+  $$('.char-visual').forEach(v => { v.classList.add('is-off'); whileVisible(v, () => v.classList.remove('is-off'), () => v.classList.add('is-off'), 0); });
+}
+
 function initStack() {
   const stack = $('.svc-stack');
   if (!stack || reduced) return;
@@ -862,6 +866,7 @@ initCursor();
 initSmooth();
 initFlipbook();
 initStack();
+initCharacters();
 initBanners();
 initServices();
 initImpact();

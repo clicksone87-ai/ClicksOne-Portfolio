@@ -7,3 +7,6 @@
 Thumbs.db
 .vscode/
 .claude/settings.local.json
+
+# Original full-size character art (web copies live in assets/characters/)
+characters/

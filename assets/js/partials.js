@@ -267,22 +267,67 @@ const servicePanel = (s, i) => `
     <div class="svc-visual" data-tilt>${serviceScene(s)}</div>
   </div>`;
 
-const SVC_THUMBS = {
-  branding: ['roshan', 'goldenline', 'cambridge', 'redbull'], uiux: ['nothing', 'basedrop', 'remote', 'lending'],
-  web: ['lending', 'freight', 'remote', 'basedrop'], decks: ['ageofai', 'redbull', 'cambridge', 'goldenline'],
-  editorial: ['editorial', 'ageofai', 'roshan', 'cambridge'], video: ['reels', 'nothing', 'redbull', 'ageofai'],
-};
+// Service characters: one card each in "What We Do" (image in assets/characters/<img>.jpg)
+const CHARACTERS = [
+  { id: 'branding', img: 'branding', name: 'Branding & Brand Identity', cta: 'Build Your Brand',
+    tags: ['Brand Strategy', 'Logo Design', 'Visual Identity', 'Brand Guidelines', 'Rebranding'],
+    desc: 'Brand identity design that gives your business a clear, recognizable look everywhere it shows up. We connect brand strategy, logo systems, color, typography and brand guidelines so your team communicates consistently from launch onward.' },
+  { id: 'uiux', img: 'uiux', name: 'UI/UX Design', cta: 'Design Your Product',
+    tags: ['UX Research', 'UI Design', 'Product Design', 'App Design', 'UX Audit'],
+    desc: 'UI/UX design services that turn complex product ideas into interfaces people can use without friction. We combine user research, user flows, wireframes, prototypes and design systems for SaaS and digital product teams.' },
+  { id: 'web', img: 'web', name: 'Website & Web Design', cta: 'Build Your Website',
+    tags: ['Website Design', 'Web Development', 'Landing Pages', 'CMS Setup', 'Technical SEO'],
+    desc: 'Website design and development that turns visitors into leads. We plan, design and build fast, responsive websites and landing pages your team can update without waiting on developers.' },
+  { id: 'decks', img: 'presentation', name: 'Presentation Design', cta: 'Design Your Deck',
+    tags: ['Pitch Decks', 'Investor Presentations', 'Keynote Decks', 'Sales Decks', 'Deck Templates'],
+    desc: 'Pitch deck and presentation design that helps founders raise funding and win deals. We shape the story, structure and visuals of investor, sales and keynote presentations so every slide earns its place.' },
+  { id: 'editorial', img: 'print', name: 'Print & Publication', cta: 'Design Your Publication',
+    tags: ['Book Covers', 'Interior Layout', 'Magazines', 'Reports', 'Brochures'],
+    desc: 'Print and editorial design that makes long-form content easy to read and good to look at. We design book covers, interior layouts, magazines, reports and brochures ready for print and digital.' },
+  { id: 'motion', img: 'motion', name: 'Motion Graphics', cta: 'Animate Your Idea',
+    tags: ['Explainer Animation', 'Logo Animation', '2D Motion', 'UI Motion', 'Kinetic Type'],
+    desc: 'Motion graphics that make ideas move: animated explainers, logo animations, UI motion and social-ready loops that keep attention on your message from the first frame.' },
+  { id: 'video', img: 'video', name: 'Video & Multimedia', cta: 'Create Your Video',
+    tags: ['Video Editing', 'Talking-Head Edits', 'Reels & Shorts', 'Color & Sound', 'AI Video'],
+    desc: 'Video editing services that turn raw footage, scripts and product screens into finished videos for every channel. We handle short- and long-form editing, motion graphics, 2D and 3D animation, VFX and AI video.' },
+  { id: 'graphic', img: 'graphic', name: 'Graphic Design', cta: 'Start a Design Request',
+    tags: ['Marketing Collateral', 'Infographics', 'Brochures', 'Posters', 'Brand Assets'],
+    desc: 'Everyday design that keeps your brand consistent: marketing collateral, infographics, brochures, posters and brand assets, delivered quickly and always on-brand.' },
+  { id: 'illustration', img: 'illustration', name: 'Illustration & Art', cta: 'Commission an Illustration',
+    tags: ['Character Design', 'Icon Sets', 'Editorial Illustration', 'Product Illustration', 'Concept Art'],
+    desc: 'Custom illustration that gives your brand a style no stock library can: characters, icons, editorial and product illustrations drawn for your story.' },
+  { id: 'social', img: 'social', name: 'Social Media Design', cta: 'Grow Your Socials',
+    tags: ['Post Templates', 'Carousels', 'Story Designs', 'Ad Creatives', 'Campaign Kits'],
+    desc: 'Scroll-stopping social content: post and carousel templates, story designs, ad creatives and campaign kits that keep every channel looking like the same brand.' },
+  { id: 'advertising', img: 'advertising', name: 'Advertising & Marketing', cta: 'Launch a Campaign',
+    tags: ['Campaign Concepts', 'Paid Social Ads', 'Display Ads', 'Launch Assets', 'A/B Creative'],
+    desc: 'Campaign creative built to convert: ad concepts, paid social and display creatives, and launch assets designed to be tested and improved across channels.' },
+  { id: 'ecommerce', img: 'ecommerce', name: 'E-commerce Design', cta: 'Design Your Store',
+    tags: ['Shopify Design', 'Product Pages', 'Store Banners', 'Checkout UX', 'Product Visuals'],
+    desc: 'Online stores designed to sell: Shopify themes, product pages, store banners and checkout flows that make buying simple on every screen.' },
+  { id: 'email', img: 'email', name: 'Email & Newsletter', cta: 'Design Your Emails',
+    tags: ['Newsletter Templates', 'Email Campaigns', 'Automation Flows', 'Klaviyo & Mailchimp', 'Responsive Email'],
+    desc: 'Emails people actually open: newsletter templates, product announcements and automated sequences designed to look right in every inbox.' },
+  { id: 'fashion', img: 'fashion', name: 'Fashion & Apparel', cta: 'Design Your Collection',
+    tags: ['Apparel Graphics', 'Lookbooks', 'Tech Packs', 'Labels & Tags', 'Campaign Visuals'],
+    desc: 'Design for fashion brands: apparel graphics, lookbooks, tech packs, labels and campaign visuals that carry your collection from sketch to store.' },
+];
+
 const serviceCard = (s, i) => `
-  <article class="svc-card" id="${s.id}" style="--i:${i}" data-cursor="Explore service">
+  <article class="svc-card char-card" id="${s.id}" style="--i:${i}">
     <div class="svc-card-in">
       <div class="svc-c-text">
-        <div class="svc-c-top"><span class="svc-c-n">(0${i + 1})</span><h3>${s.name}</h3></div>
-        <p class="svc-desc">${s.desc}</p>
+        <p class="svc-c-n">${String(i + 1).padStart(2, '0')} / ${String(CHARACTERS.length).padStart(2, '0')}</p>
+        <h3>${s.name}</h3>
         <ul class="tags">${s.tags.map(t => `<li>${t}</li>`).join('')}</ul>
-        ${btn(s.cta, SITE.bookUrl, i >= 4 ? 'dark' : 'white')}
+        <p class="svc-desc">${s.desc}</p>
+        ${btn(s.cta, SITE.bookUrl, 'primary')}
       </div>
-      <div class="svc-visual" data-tilt>${serviceScene(s)}</div>
-      <div class="svc-thumbs" aria-hidden="true">${SVC_THUMBS[s.id].map(id => `<span class="svc-thumb">${mock(PROJECTS.find(x => x.id === id))}</span>`).join('')}</div>
+      <div class="char-visual" data-tilt>
+        <div class="layer char-layer" data-depth="22"><img src="assets/characters/${s.img}.jpg" alt="${s.name} character" width="1024" height="1536" loading="lazy" decoding="async"></div>
+        <span class="char-glow" aria-hidden="true"></span>
+        <span class="char-spark s1" aria-hidden="true"></span><span class="char-spark s2" aria-hidden="true"></span><span class="char-spark s3" aria-hidden="true"></span>
+      </div>
     </div>
   </article>`;
 
@@ -496,10 +541,10 @@ const PARTIALS = {
 <section class="section" id="${opts.listId || 'services'}">
   <div class="container">
     ${opts.noHead ? '' : `<div class="split-head">
-      <div class="reveal">${eyebrow('What We Do')}<h2>Six Specialist Services. <span class="muted">One Connected Creative Agency.</span></h2></div>
+      <div class="reveal">${eyebrow('What We Do')}<h2>Specialist Services. <span class="muted">One Connected Creative Agency.</span></h2></div>
       <p class="lead reveal" style="--d:.1s">Clicksone brings brand, product, presentation, web, editorial and video specialists into one creative agency. Start with the service you need now, and add others as your project grows.</p>
     </div>`}
-    <div class="svc-stack">${SERVICES.map(serviceCard).join('')}</div>
+    <div class="svc-stack">${CHARACTERS.map(serviceCard).join('')}</div>
   </div>
 </section>`,
 
@@ -739,5 +784,5 @@ function statArt(a) {
   return '';
 }
 
-window.CS = { GLOBE_PLACES, SITE, I, FLAG, SERVICES, CATEGORIES, PROJECTS, TESTIMONIALS, LOGOS, STATS, PROCESS, PLANS, PARTIALS, btn, mock, servicePanel };
+window.CS = { CHARACTERS, GLOBE_PLACES, SITE, I, FLAG, SERVICES, CATEGORIES, PROJECTS, TESTIMONIALS, LOGOS, STATS, PROCESS, PLANS, PARTIALS, btn, mock, servicePanel };
 })();
