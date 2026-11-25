@@ -127,26 +127,24 @@ const PROJECTS = [
     head: 'The Quiet Work', brand: 'A Novel',
     desc: 'Cover and interior layouts for a long-form book, designed for print and eBook with consistent typography.' },
   { id: 'reels', title: 'Talking-Head Video Series', cat: 'video', mock: 'reels', bg: 'violet',
-    head: 'Fitness', brand: 'Lukas - Talking Head',
+    head: 'Fitness', brand: 'Lukas, Talking Head',
     desc: 'Short-form talking-head edits for finance, fitness and lifestyle creators, with captions and motion graphics.' },
 ];
 
 // Places shown on the globe. review = index into TESTIMONIALS (-1 = location label only)
 const GLOBE_PLACES = [
-  { name: 'United States', short: 'US', lat: 39.8, lon: -98.6, review: 0, flag: 'us' },
-  { name: 'United Kingdom', short: 'UK', lat: 52.5, lon: -1.5, review: 1, flag: 'uk', left: true },
-  { name: 'Canada', short: 'CA', lat: 56.1, lon: -106.3, review: 2, flag: 'ca' },
-  { name: 'Europe', short: 'EU', lat: 50.5, lon: 10.5, review: -1 },
-  { name: 'UAE', short: 'UAE', lat: 24.3, lon: 54.4, review: -1, flag: 'ae' },
+  { name: 'North America', short: 'NA', lat: 46, lon: -100, review: 0, reviews: [0, 2] },
+  { name: 'Europe', short: 'EU', lat: 51, lon: 6, review: 1, reviews: [1], left: true },
+  { name: 'Middle East', short: 'ME', lat: 25, lon: 49, review: -1, reviews: [] },
 ];
 
 const TESTIMONIALS = [
   { flag: 'us', place: 'United States', label: 'Website project',
     text: 'I had a great experience working with this company on my website. Despite some language barriers and the fact that I was quite a demanding client, they remained patient, professional, and helpful throughout the entire process. We went through several revisions, and they always made sure my requests were addressed. In the end, the website turned out great, and I’m very happy with the result. Highly recommended!' },
   { flag: 'uk', place: 'United Kingdom', label: 'Websites, slide decks & design',
-    text: 'I have used this group for over 2 years now with all sorts of different projects and everytime - it is exceptional! I highly recommend their service and know that whenever I need help with websites, slide decks, design work I can count on their team. Thanks!' },
+    text: 'I have used this group for over 2 years now with all sorts of different projects and everytime, it is exceptional! I highly recommend their service and know that whenever I need help with websites, slide decks, design work I can count on their team. Thanks!' },
   { flag: 'ca', place: 'Canada', label: 'Ongoing design partner',
-    text: 'Exceptional - I will be using this company for all of our design needs. Amazing communication, prompt and brilliant attention to detail. They also were patient and understanding with a few issues we had on our side that delayed the delivery. Thanks team.' },
+    text: 'Exceptional. I will be using this company for all of our design needs. Amazing communication, prompt and brilliant attention to detail. They also were patient and understanding with a few issues we had on our side that delayed the delivery. Thanks team.' },
 ];
 
 const LOGOS = [
@@ -256,7 +254,7 @@ function serviceScene(s) {
     case 'video': return `
       <div class="scene scene-video">
         <div class="layer reel side l" data-depth="10"><span>Finance</span></div>
-        <div class="layer reel mid" data-depth="26"><span class="face"></span><p>Fitness</p><em>Lukas - Talking Head</em><b class="playbtn">${I.play}</b></div>
+        <div class="layer reel mid" data-depth="26"><span class="face"></span><p>Fitness</p><em>Lukas, Talking Head</em><b class="playbtn">${I.play}</b></div>
         <div class="layer reel side r" data-depth="10"><span>Lifestyle</span></div></div>`;
   }
   return '';
@@ -524,27 +522,28 @@ const PARTIALS = {
   <div class="hl-track">${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k}" aria-hidden="true">${html}</span>`).join('')}${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k} dup" aria-hidden="true">${html}</span>`).join('')}</div>
 </div>`,
 
-  'cta-banner': () => {
-    return `
+  'cta-banner': () => `
 <section class="section-tight">
   <div class="container">
-    <div class="cta-pro reveal">
-      <span class="cp-grid" aria-hidden="true"></span>
-      <span class="cp-spot" aria-hidden="true"></span>
-      <div class="cta-banner cp-inner">
-        <p class="cp-pill"><span class="cp-dot" aria-hidden="true"></span>Book a call · Reply within 24 hours</p>
-        <h2>Need More Than <span class="cp-hl">One Service?</span></h2>
-        <p class="cp-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-        <div class="cp-actions">
-          ${btn('Start a Project', SITE.bookUrl, 'primary', 'data-magnetic')}
-          <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
+    <div class="cta-gm reveal">
+      <span class="gm-orb gm-o1" aria-hidden="true"></span><span class="gm-orb gm-o2" aria-hidden="true"></span><span class="gm-orb gm-o3" aria-hidden="true"></span>
+      <div class="cta-banner gm-card">
+        <div class="gm-left">
+          <p class="gm-pill"><span class="cp-dot" aria-hidden="true"></span>Book a call</p>
+          <h2>Need More Than <span class="gm-hl">One Service?</span></h2>
         </div>
-        <p class="cp-team"><span>14 specialists. One connected team.</span></p>
+        <div class="gm-right">
+          <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
+          <div class="gm-actions">
+            ${btn('Start a Project', SITE.bookUrl, 'white', 'data-magnetic')}
+            <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
+          </div>
+          <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
+        </div>
       </div>
     </div>
   </div>
-</section>`;
-  },
+</section>`,
 
   slider: (o = {}) => {
     const rowA = ['redbull', 'basedrop', 'goldenline', 'roshan', 'freight', 'lending'];
@@ -584,9 +583,13 @@ const PARTIALS = {
       <p class="lead reveal" style="--d:.1s">Websites, brands, products and decks we’ve designed and built for startups and growing companies.</p>
     </div>`}
     ${opts.orbit ? workOrbit() : ''}
-    <div class="tabs reveal" role="tablist" aria-label="Filter work by category">
+    <div class="tabs-row reveal">
+    <button type="button" class="tabs-arrow tabs-prev" aria-label="Previous categories">${I.arrow}</button>
+    <div class="tabs" role="tablist" aria-label="Filter work by category">
       <span class="tab-ind" aria-hidden="true"></span>
-      ${CATEGORIES.map(([k, l], i) => { const ch = CHARACTERS.find(x => x.id === k); return `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}" style="--k:${i}"><span class="tab-ava" aria-hidden="true">${ch ? `<img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async">` : '<svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="currentColor"/></svg>'}</span><span class="tab-label">${l}</span></button>`; }).join('')}
+      ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}" style="--k:${i}">${l}</button>`).join('')}
+    </div>
+    <button type="button" class="tabs-arrow tabs-next" aria-label="More categories">${I.arrow}</button>
     </div>
     <div class="work-grid" data-limit="${opts.limit || 0}" data-per-page="${opts.perPage || 0}">${PROJECTS.map(projectCard).join('')}${SOON_CARDS.map(soonCard).join('')}</div>
     ${opts.limit ? `<div class="work-more"><a class="btn btn-ghost btn-solo" href="work.html">View More Work</a></div>`
@@ -679,7 +682,7 @@ const PARTIALS = {
     return `
 <section class="section compare-sec">
   <div class="container">
-    <div class="center-head reveal on-dark"><p class="eyebrow eyebrow-logo">Why <img src="assets/brand/wordmark-light.png" alt="Clicksone" width="86" height="22"></p><h2>One Team Instead of Five Trade-offs</h2></div>
+    <div class="center-head reveal on-dark"><p class="eyebrow eyebrow-logo"><span>Why</span> <img src="assets/brand/wordmark-light.png" alt="Clicksone" width="86" height="22"></p><h2>One Team Instead of Five Trade-offs</h2></div>
     <div class="compare reveal">
       <div class="compare-scroll">
         <table>
@@ -735,11 +738,11 @@ const PARTIALS = {
             <div class="globe-fallback" aria-hidden="true"></div>
             <div class="g-labels">
               ${GLOBE_PLACES.map(g => g.review >= 0
-                ? `<button type="button" class="g-label${g.left ? ' g-left' : ''}${g.review === 0 ? ' is-active' : ''}" data-i="${g.review}" aria-label="Show the review from ${g.name}"><i></i><span>${FLAG[g.flag] || ''}<b class="gl-full">${g.name}</b><b class="gl-short">${g.short}</b></span></button>`
+                ? `<button type="button" class="g-label g-region${g.left ? ' g-left' : ''}${g.review === 0 ? ' is-active' : ''}" data-i="${g.review}" data-rv="${g.reviews.join(',')}" aria-label="Show reviews from ${g.name}"><i></i><span>${FLAG[g.flag] || ''}<b class="gl-full">${g.name}</b><b class="gl-short">${g.short}</b></span></button>`
                 : `<span class="g-label g-static${g.left ? ' g-left' : ''}"><i></i><span><b class="gl-full">${g.name}</b><b class="gl-short">${g.short}</b></span></span>`).join('')}
             </div>
           </div>
-          <p class="g-hint">Click a country on the globe to read its review.</p>
+          <p class="g-hint">Click a region on the globe to read its reviews.</p>
         </div>
         <div class="rv" aria-roledescription="carousel" aria-label="Client reviews">
           <h2 class="reviews-title">What Clients Say <span class="muted">About Clicksone</span></h2>
@@ -831,7 +834,7 @@ const PARTIALS = {
           <label>Email<input name="email" type="email" placeholder="Email" autocomplete="email" required></label>
         </div>
         <label>Service Type<select name="service" required><option value="">Select...</option>${SERVICES.map(s => `<option>${s.name}</option>`).join('')}<option>Creative Subscription</option><option>Not sure yet</option></select></label>
-        <label>Estimated Budget<select name="budget" required><option value="">Select...</option><option>Under $2,500</option><option>$2,500 – $5,000</option><option>$5,000 – $10,000</option><option>$10,000 – $25,000</option><option>$25,000+</option></select></label>
+        <label>Estimated Budget<select name="budget" required><option value="">Select...</option><option>Under $2,500</option><option>$2,500 to $5,000</option><option>$5,000 to $10,000</option><option>$10,000 to $25,000</option><option>$25,000+</option></select></label>
         <label>Company<input name="company" type="text" placeholder="Company ( Optional )" autocomplete="organization"></label>
         <label>Message<textarea name="message" rows="4" placeholder="Message" required></textarea></label>
         <p class="reply-note">We reply within 24 hours.</p>
@@ -846,7 +849,7 @@ const PARTIALS = {
 <footer class="site-footer">
   <div class="container">
     <div class="f-top">
-      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-light.png" alt="Clicksone" width="141" height="36"></a>
+      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-white.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
       <nav class="f-legal" aria-label="Legal">
         <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>

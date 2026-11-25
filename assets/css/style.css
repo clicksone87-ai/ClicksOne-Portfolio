@@ -2461,3 +2461,87 @@ button.g-label:focus-visible > span { outline: 2px solid var(--c-white); outline
   .wwd.is-open .wwd-detail { position: relative; left: auto; top: auto; translate: none; }
   .wwd-desc { font-size: 13.5px; }
 }
+
+/* =========================================================================
+   V13 — shorter header, one-line categories with arrows, glass banner,
+          larger What We Do ring, region labels, white footer logo
+   ========================================================================= */
+/* 1. shorter header bar */
+.nav-bar { max-width: 1160px; }
+
+/* 2. client-logos heading on two even lines */
+.logos-sec .center-head { max-width: 1100px; }
+.logos-sec .center-head h2 { font-size: clamp(30px, 3.6vw, 54px); text-wrap: balance; }
+
+/* 4. categories: one line of plain text; arrows move to the next ones */
+.tabs-row { display: flex; align-items: center; gap: 10px; margin-bottom: clamp(26px, 3vw, 40px); border-bottom: 1px solid var(--line); }
+.tabs-row .tabs {
+  display: flex; flex: 1; flex-wrap: nowrap; gap: clamp(22px, 2.6vw, 40px); min-width: 0; margin: 0; padding: 0;
+  overflow-x: auto; scrollbar-width: none; background: none; border-radius: 0; box-shadow: none;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 36px), transparent); mask: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 36px), transparent);
+}
+.tabs-row .tabs::-webkit-scrollbar { display: none; }
+.tabs-row .tabs .tab {
+  position: relative; flex: none; overflow: visible; padding: 14px 0 16px; border: 0; border-radius: 0; box-shadow: none;
+  background: none; color: var(--muted); font-size: 15px; font-weight: 500; white-space: nowrap; transform: none;
+}
+.tabs-row .tabs .tab::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 2px; z-index: 0; border-radius: 2px;
+  background: var(--c-violet); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease-out); animation: none;
+}
+.tabs-row .tabs .tab.is-active { background: none; color: var(--c-text); font-weight: 600; box-shadow: none; }
+.tabs-row .tabs .tab.is-active::after { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) {
+  .tabs-row .tabs .tab:hover { background: none; color: var(--c-text); transform: none; box-shadow: none; }
+  .tabs-row .tabs .tab.is-active:hover { background: none; }
+  .tabs-row .tabs .tab:not(.is-active):hover::after { transform: scaleX(.35); }
+}
+.tabs-arrow { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--c-white); border: 1px solid var(--line); color: var(--c-text); transition: background .3s, color .3s, opacity .3s, transform .3s var(--ease-out); }
+.tabs-arrow svg { width: 18px; height: 18px; }
+.tabs-prev svg { transform: rotate(180deg); }
+.tabs-arrow:disabled { opacity: .3; cursor: default; }
+@media (hover: hover) and (pointer: fine) { .tabs-arrow:not(:disabled):hover { background: var(--c-violet); color: var(--c-white); border-color: var(--c-violet); } }
+@media (max-width: 640px) { .tabs-row .tabs { margin: 0; padding: 0; } .tabs-arrow { width: 34px; height: 34px; } .tabs-row .tabs .tab { font-size: 14px; } }
+
+/* 5. Book a Call banner: frosted glass over glowing colour, text left and right */
+.cta-gm { position: relative; isolation: isolate; overflow: hidden; padding: clamp(14px, 1.8vw, 22px); border-radius: var(--radius-card); background: linear-gradient(135deg, var(--c-plum), var(--c-ink) 65%); box-shadow: 0 40px 80px -50px rgba(123, 44, 191, .9); }
+.gm-orb { position: absolute; z-index: 0; border-radius: 50%; filter: blur(30px); pointer-events: none; animation: gm-drift 14s ease-in-out infinite alternate; }
+.gm-o1 { width: 42%; aspect-ratio: 1; left: -6%; top: -40%; background: radial-gradient(circle, var(--c-electric), transparent 65%); }
+.gm-o2 { width: 36%; aspect-ratio: 1; right: -4%; bottom: -45%; background: radial-gradient(circle, var(--c-violet), transparent 65%); animation-delay: -5s; }
+.gm-o3 { width: 26%; aspect-ratio: 1; left: 46%; top: 20%; background: radial-gradient(circle, rgba(201, 160, 255, .7), transparent 65%); animation-delay: -9s; }
+@keyframes gm-drift { to { translate: 6% 10%; scale: 1.1; } }
+.cta-gm .cta-banner.gm-card {
+  position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center;
+  padding: clamp(28px, 4vw, 56px); overflow: visible; text-align: left; color: var(--c-white);
+  border-radius: calc(var(--radius-card) - 6px); background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .22);
+  -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 30px 60px -30px rgba(0, 0, 0, .6);
+}
+.gm-left { text-align: left; }
+.gm-pill { display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .22); color: rgba(255, 255, 255, .9); font-size: 13px; font-weight: 600; }
+.cta-gm .cta-banner h2 { margin: 18px 0 0; max-width: 12ch; color: var(--c-white); font-size: clamp(30px, 3.6vw, 52px); line-height: 1; }
+.gm-hl { color: #d8bdff; }
+.gm-right { text-align: right; }
+.cta-gm .cta-banner .gm-text { margin: 0 0 0 auto; max-width: 46ch; color: rgba(255, 255, 255, .84); font-size: 1.05rem; line-height: 1.6; }
+.gm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.cta-gm .cta-banner .gm-note { margin: 16px 0 0; color: rgba(255, 255, 255, .66); font-size: 13px; }
+.cta-gm:has(.is-off) .gm-orb { animation-play-state: paused; }
+@media (max-width: 900px) {
+  .cta-gm .cta-banner.gm-card { grid-template-columns: minmax(0, 1fr); }
+  .gm-right { text-align: left; }
+  .cta-gm .cta-banner .gm-text { margin-left: 0; }
+  .gm-actions { justify-content: flex-start; }
+}
+@media (max-width: 640px) { .cta-gm .cta-banner.gm-card { padding: 24px 18px; } .gm-actions .btn { width: 100%; justify-content: space-between; } }
+
+/* 6. What We Do: a larger ring so cards never overlap */
+.wwd { --cw: clamp(80px, 7vw, 112px); --r: min(40vw, 410px); height: calc(var(--r) * 2 + var(--cw) * 1.8); }
+@media (max-width: 640px) { .wwd { --cw: 46px; --r: 42vw; height: calc(var(--r) * 2 + var(--cw) * 1.9); } .wwd .wwd-title { font-size: 40px; } }
+
+/* 7. "Why Clicksone": space between the word and the logo */
+.eyebrow.eyebrow-logo { gap: 8px; }
+
+/* 8. globe: region labels */
+.g-region > span { font-weight: 700; letter-spacing: .01em; }
+
+@media (prefers-reduced-motion: reduce) { .gm-orb { animation: none !important; } }

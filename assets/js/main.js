@@ -445,6 +445,19 @@ function initWork() {
   document.fonts?.ready.then(() => { moveInd(); measureTags(); });
   addEventListener('resize', () => { moveInd(); measureTags(); });
   tabs.forEach(t => t.addEventListener('click', () => apply(t.dataset.filter)));
+  const prev = $('.tabs-prev'), next = $('.tabs-next');
+  if (tabsEl && next) {
+    const step = () => Math.max(160, tabsEl.clientWidth * .7);
+    const sync = () => {
+      prev.disabled = tabsEl.scrollLeft < 4;
+      next.disabled = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
+    };
+    prev.addEventListener('click', () => tabsEl.scrollBy({ left: -step(), behavior: reduced ? 'auto' : 'smooth' }));
+    next.addEventListener('click', () => tabsEl.scrollBy({ left: step(), behavior: reduced ? 'auto' : 'smooth' }));
+    tabsEl.addEventListener('scroll', sync, { passive: true });
+    addEventListener('resize', sync);
+    sync();
+  }
   tabsEl?.addEventListener('keydown', e => {
     const i = tabs.indexOf(document.activeElement);
     if (i < 0 || !['ArrowRight', 'ArrowLeft'].includes(e.key)) return;
@@ -792,7 +805,7 @@ function initReach() {
   const go = (k, user = false) => {
     i = (k + n) % n;
     slides.forEach((s, j) => { s.classList.toggle('is-active', j === i); s.toggleAttribute('aria-hidden', j !== i); });
-    labels.forEach(l => { const on = +l.dataset.i === i; l.classList.toggle('is-active', on); l.setAttribute('aria-pressed', on); });
+    labels.forEach(l => { const on = (l.dataset.rv || l.dataset.i).split(',').map(Number).includes(i); l.classList.toggle('is-active', on); l.setAttribute('aria-pressed', on); });
     if (count) count.textContent = String(i + 1).padStart(2, '0');
     GLOBE.index = i;
     if (GLOBE.ready && user) GLOBE.focus(i);
@@ -834,10 +847,10 @@ function mountGlobe(wrap, createGlobe) {
   addEventListener('resize', resize);
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const TAU = Math.PI * 2;
-  const markers = () => places.map(g => ({ location: [g.lat, g.lon], size: target && g.review === target.i ? .1 : .05 }));
+  const markers = () => places.map(g => ({ location: [g.lat, g.lon], size: target && (g.reviews || []).includes(target.i) ? .12 : .07 }));
   let holdUntil = 0;
   GLOBE.focus = i => {
-    const g = places.find(x => x.review === i);
+    const g = places.find(x => (x.reviews || [x.review]).includes(i));
     if (g) { target = { ...anglesFor(g.lat, g.lon), i }; holdUntil = 0; }
   };
   const globe = createGlobe(canvas, {
