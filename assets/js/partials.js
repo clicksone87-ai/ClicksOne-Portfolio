@@ -207,12 +207,12 @@ function mock(p) {
   return `<div class="mock bg-${p.bg}">${p.img ? `<img src="${p.img}" alt="${p.title}" loading="lazy">` : inner}</div>`;
 }
 
-const CAT_NAME = Object.fromEntries(CATEGORIES);
+const catLabel = k => (CATEGORIES.find(x => x[0] === k) || [k, k])[1]; // looked up at render time
 const projectCard = p => `
   <article class="work-card" data-cat="${p.cat}" data-id="${p.id}">
     <button class="work-media" type="button" aria-label="View ${p.title}" data-cursor="View project">
       <span class="work-frame">${mock(p)}</span>
-      <span class="work-tag"><span class="wt-label">${p.title} / ${CAT_NAME[p.cat]}</span><span class="wt-view">View project ↗</span></span>
+      <span class="work-tag"><span class="wt-label">${p.title} / ${catLabel(p.cat)}</span><span class="wt-view">View project ↗</span></span>
     </button>
     <h3>${p.title}</h3>
     <p>${p.desc}</p>
@@ -312,6 +312,27 @@ const CHARACTERS = [
     tags: ['Apparel Graphics', 'Lookbooks', 'Tech Packs', 'Labels & Tags', 'Campaign Visuals'],
     desc: 'Design for fashion brands: apparel graphics, lookbooks, tech packs, labels and campaign visuals that carry your collection from sketch to store.' },
 ];
+
+// Our Work categories = the 14 service characters. Existing projects are mapped onto them.
+const OLD_CAT = { pitch: 'decks', uiux: 'uiux', web: 'web', branding: 'branding', editorial: 'editorial', video: 'video' };
+PROJECTS.forEach(p => { p.cat = OLD_CAT[p.cat] || p.cat; });
+CATEGORIES.length = 0;
+CATEGORIES.push(['all', 'All Work'], ...CHARACTERS.map(ch => [ch.id, ch.name]));
+// Categories with fewer than four real projects are topped up with clearly labelled "coming soon" boxes.
+const SOON_CARDS = CHARACTERS.flatMap(ch => {
+  const have = PROJECTS.filter(p => p.cat === ch.id).length;
+  return Array.from({ length: Math.max(0, 4 - have) }, (_, k) => ({ cat: ch.id, img: ch.img, name: ch.name, k }));
+});
+const soonCard = s => `
+  <article class="work-card is-soon" data-cat="${s.cat}" data-soon>
+    <a class="work-media soon-media" href="${SITE.bookUrl}" aria-label="Start a ${s.name} project" style="--pos:50% ${[14, 42, 70, 28][s.k % 4]}%">
+      <span class="work-frame"><img src="assets/characters/${s.img}.jpg" alt="" loading="lazy" decoding="async"></span>
+      <span class="work-tag"><span class="wt-label">${s.name}</span><span class="wt-view">Start a project ↗</span></span>
+      <span class="soon-badge">Case study coming soon</span>
+    </a>
+    <h3>${s.name}</h3>
+    <p>New ${s.name.toLowerCase()} work is being added here. Want your project to be next?</p>
+  </article>`;
 
 const serviceCard = (s, i) => `
   <article class="svc-card char-card" id="${s.id}" style="--i:${i}">
@@ -421,31 +442,30 @@ const PARTIALS = {
   <div class="hl-track">${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k}" aria-hidden="true">${html}</span>`).join('')}${LOGOS.map(([k, html]) => `<span class="logo-inner lg-${k} dup" aria-hidden="true">${html}</span>`).join('')}</div>
 </div>`,
 
-  'cta-banner': () => `
+  'cta-banner': () => {
+    const faces = ['branding', 'uiux', 'web', 'motion', 'social'];
+    return `
 <section class="section-tight">
   <div class="container">
-    <div class="cta-glass reveal">
-      <span class="cg-orb cg-orb-1" aria-hidden="true"></span>
-      <span class="cg-orb cg-orb-2" aria-hidden="true"></span>
-      <div class="cta-banner">
-        <div class="cg-copy">
-          ${eyebrow('Book a call')}
-          <h2>Need More Than One Service?</h2>
-          <p>Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-          <div class="cg-actions">
-            ${btn('Start a Project', SITE.bookUrl, 'primary', 'data-magnetic')}
-            <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
-          </div>
-          <p class="cg-reply">${avatars(3)}<span>Reply within 24 hours · NDA available on request</span></p>
+    <div class="cta-pro reveal">
+      <span class="cp-grid" aria-hidden="true"></span>
+      <span class="cp-spot" aria-hidden="true"></span>
+      <figure class="cp-char cp-left" aria-hidden="true"><img src="assets/characters/branding.jpg" alt="" loading="lazy" decoding="async"></figure>
+      <figure class="cp-char cp-right" aria-hidden="true"><img src="assets/characters/video.jpg" alt="" loading="lazy" decoding="async"></figure>
+      <div class="cta-banner cp-inner">
+        <p class="cp-pill"><span class="cp-dot" aria-hidden="true"></span>Book a call · Reply within 24 hours</p>
+        <h2>Need More Than <span class="cp-hl">One Service?</span></h2>
+        <p class="cp-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
+        <div class="cp-actions">
+          ${btn('Start a Project', SITE.bookUrl, 'primary', 'data-magnetic')}
+          <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
         </div>
-        <div class="cg-panel">
-          <p class="cg-panel-title">One team for all of it</p>
-          <ul>${SERVICES.map(s => `<li>${I.check}<span>${s.name}</span></li>`).join('')}</ul>
-        </div>
+        <p class="cp-team"><span class="cp-faces" aria-hidden="true">${faces.map(f => `<img src="assets/characters/${f}.jpg" alt="" loading="lazy" decoding="async">`).join('')}</span><span>14 specialists. One connected team.</span></p>
       </div>
     </div>
   </div>
-</section>`,
+</section>`;
+  },
 
   slider: (o = {}) => {
     const rowA = ['redbull', 'basedrop', 'goldenline', 'roshan', 'freight', 'lending'];
@@ -488,7 +508,7 @@ const PARTIALS = {
       <span class="tab-ind" aria-hidden="true"></span>
       ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}">${l}</button>`).join('')}
     </div>
-    <div class="work-grid" data-limit="${opts.limit || 0}" data-per-page="${opts.perPage || 0}">${PROJECTS.map(projectCard).join('')}</div>
+    <div class="work-grid" data-limit="${opts.limit || 0}" data-per-page="${opts.perPage || 0}">${PROJECTS.map(projectCard).join('')}${SOON_CARDS.map(soonCard).join('')}</div>
     ${opts.limit ? `<div class="work-more"><a class="btn btn-ghost btn-solo" href="work.html">View More Work</a></div>`
       : opts.perPage ? `<div class="work-more"><button class="btn btn-ghost btn-solo work-load" type="button">View More Work</button></div>` : ''}
   </div>

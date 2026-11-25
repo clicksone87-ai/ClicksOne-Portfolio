@@ -326,6 +326,15 @@ function initHero() {
       hero.addEventListener('pointerleave', () => hero.classList.remove('glow-on'));
     }
   }
+  const leader = $('.hero-leader');
+  if (hero && leader && finePointer && !reduced) {
+    hero.addEventListener('pointermove', e => {
+      const r = hero.getBoundingClientRect();
+      leader.style.setProperty('--mx', ((e.clientX - r.left) / r.width - .5).toFixed(3));
+      leader.style.setProperty('--my', ((e.clientY - r.top) / r.height - .5).toFixed(3));
+    });
+    hero.addEventListener('pointerleave', () => { leader.style.setProperty('--mx', 0); leader.style.setProperty('--my', 0); });
+  }
   // Slider section grows from 0.92 to 1 (and loses its corner radius) as it scrolls in.
   const sr = $('.slider.showreel');
   if (sr && !reduced) {
@@ -361,6 +370,8 @@ function initLogos() {
     order.forEach(t => wall.appendChild(t));       // same 9 nodes moved, so no logo can repeat
     order.forEach((t, k) => {
       const a = first.get(t), b = t.getBoundingClientRect();
+      if (!b.width) return; // shuffled into the hidden ninth slot
+      if (!a.width) { t.animate([{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'none' }], { duration: 650, easing: EASE, delay: k * 25, fill: 'backwards' }); return; }
       const dx = a.left - b.left, dy = a.top - b.top;
       if (!dx && !dy) return;
       t.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
@@ -400,10 +411,12 @@ function initWork() {
     if (!ind || !a) return;
     tabsEl.classList.add('has-ind');
     ind.style.setProperty('--tx', `${a.offsetLeft}px`);
+    ind.style.setProperty('--ty', `${a.offsetTop}px`);
     ind.style.setProperty('--tw', `${a.offsetWidth}px`);
+    ind.style.setProperty('--th', `${a.offsetHeight}px`);
   };
   const layout = (animate, from = 0) => {
-    const all = cards.filter(c => key === 'all' || c.dataset.cat === key);
+    const all = key === 'all' ? cards.filter(c => !c.hasAttribute('data-soon')) : cards.filter(c => c.dataset.cat === key);
     const max = limit || (per ? per * pages : Infinity);
     const vis = all.slice(0, max);
     cards.forEach(c => c.classList.toggle('is-hidden', !vis.includes(c)));
