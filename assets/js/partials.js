@@ -34,7 +34,7 @@ const I = {
   cross: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
   bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor"/></svg>',
   stack: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z" fill="currentColor"/><path d="m3 6 9 7 9-7" fill="none" stroke="#000000" stroke-width="1.6"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3z" fill="currentColor"/><path d="m3 6 9 7 9-7" fill="none" stroke="#fff" stroke-width="1.6"/></svg>',
   phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" fill="currentColor"/></svg>',
   pen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
   layers: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
@@ -357,6 +357,32 @@ const workOrbit = () => `
     </div>
   </div>`;
 
+// Home "What We Do": characters circle slowly around a centre that reads "What We Do";
+// clicking one brings that character to the centre and shows what it does.
+const serviceOrbit = () => `
+  <div class="w-orbit s-orbit reveal" data-start="-1">
+    <div class="wo-stage">
+      <div class="wo-ring">
+        ${CHARACTERS.map((ch, i) => `<button type="button" class="wo-dot" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" aria-pressed="false"><span class="wo-face"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"></span></button>`).join('')}
+      </div>
+      <div class="wo-center">
+        <div class="so-intro"><span class="so-kicker">What We Do</span><span class="so-big">${CHARACTERS.length} specialists</span><span class="so-sub">Click a character</span></div>
+        <img class="wo-hero" src="assets/characters/${CHARACTERS[0].img}.jpg" alt="" decoding="async">
+        <span class="wo-center-ring" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="wo-panel" aria-live="polite">
+      <p class="wo-count">Meet the team</p>
+      <h3 class="wo-name">Pick a specialist</h3>
+      <p class="wo-desc">Every character on the circle is one of our services. Click one to see what it does, then explore its work or start a project.</p>
+      <ul class="tags wo-tags">${CHARACTERS.slice(0, 6).map(ch => `<li>${ch.name}</li>`).join('')}<li>+ ${CHARACTERS.length - 6} more</li></ul>
+      <div class="wo-actions">
+        <a class="btn btn-primary wo-view" href="work.html"><span>See This Work</span><span class="btn-ico">${I.arrow}</span></a>
+        <a class="btn btn-ghost btn-solo" href="${SITE.bookUrl}">Start a Project</a>
+      </div>
+    </div>
+  </div>`;
+
 const serviceCard = (s, i) => `
   <article class="svc-card char-card" id="${s.id}" style="--i:${i}">
     <div class="svc-card-in">
@@ -527,7 +553,7 @@ const PARTIALS = {
     ${opts.orbit ? workOrbit() : ''}
     <div class="tabs reveal" role="tablist" aria-label="Filter work by category">
       <span class="tab-ind" aria-hidden="true"></span>
-      ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}">${l}</button>`).join('')}
+      ${CATEGORIES.map(([k, l], i) => { const ch = CHARACTERS.find(x => x.id === k); return `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}" style="--k:${i}"><span class="tab-ava" aria-hidden="true">${ch ? `<img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async">` : '<svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="currentColor"/></svg>'}</span><span class="tab-label">${l}</span></button>`; }).join('')}
     </div>
     <div class="work-grid" data-limit="${opts.limit || 0}" data-per-page="${opts.perPage || 0}">${PROJECTS.map(projectCard).join('')}${SOON_CARDS.map(soonCard).join('')}</div>
     ${opts.limit ? `<div class="work-more"><a class="btn btn-ghost btn-solo" href="work.html">View More Work</a></div>`
@@ -585,7 +611,7 @@ const PARTIALS = {
       <div class="reveal">${eyebrow('What We Do')}<h2>Specialist Services. <span class="muted">One Connected Creative Agency.</span></h2></div>
       <p class="lead reveal" style="--d:.1s">Clicksone brings brand, product, presentation, web, editorial and video specialists into one creative agency. Start with the service you need now, and add others as your project grows.</p>
     </div>`}
-    <div class="svc-stack">${CHARACTERS.map(serviceCard).join('')}</div>
+    ${opts.orbit ? serviceOrbit() : `<div class="svc-stack">${CHARACTERS.map(serviceCard).join('')}</div>`}
   </div>
 </section>`,
 
@@ -684,6 +710,7 @@ const PARTIALS = {
         </div>
         <div class="rv" aria-roledescription="carousel" aria-label="Client reviews">
           <h2 class="reviews-title">What Clients Say <span class="muted">About Clicksone</span></h2>
+          <div class="rv-badges"><span class="rv-badge-stack" aria-hidden="true"><img src="assets/badges/designrush.png" alt=""><img src="assets/badges/trustpilot.png" alt=""><img src="assets/badges/clutch.png" alt=""><img src="assets/badges/google.png" alt=""></span><span>Rated by founders on <b>DesignRush, Clutch, Trustpilot and Google</b></span></div>
           <div class="rv-top"><span class="stars" aria-label="5 out of 5 stars">★★★★★</span><span class="rv-count"><b>01</b> / 0${TESTIMONIALS.length}</span></div>
           <div class="rv-slides" aria-live="polite">
             ${TESTIMONIALS.map((t, i) => `
@@ -742,9 +769,9 @@ const PARTIALS = {
         <p>Let ChatGPT or Claude explore Clicksone for you.</p>
         <p>Click a button and see what AI says about us.</p>
         <div class="ask-btns">
-          <a class="ai-btn" href="https://claude.ai/new?q=${q}" target="_blank" rel="noopener"><span class="ai-ico ai-claude"><svg viewBox="0 0 24 24"><g stroke="#fff" stroke-width="2.2" stroke-linecap="round">${[0,30,60,90,120,150].map(a => `<path d="M12 4v16" transform="rotate(${a} 12 12)"/>`).join('')}</g></svg></span>Ask Claude</a>
-          <a class="ai-btn" href="https://chatgpt.com/?q=${q}" target="_blank" rel="noopener" style="--fd:.6s"><span class="ai-ico ai-gpt"><svg viewBox="0 0 24 24"><g fill="none" stroke="#fff" stroke-width="1.7">${[0,60,120].map(a => `<ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(${a} 12 12)"/>`).join('')}</g></svg></span>Ask ChatGPT</a>
-          <a class="ai-btn" href="https://www.perplexity.ai/search?q=${q}" target="_blank" rel="noopener" style="--fd:1.2s"><span class="ai-ico ai-pplx"><svg viewBox="0 0 24 24"><g fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3v18M5 7l7 5 7-5M5 7v9l7-4 7 4V7M8 4.5v5M16 4.5v5"/></g></svg></span>Ask Perplexity</a>
+          <a class="ai-btn" href="https://claude.ai/new?q=${q}" target="_blank" rel="noopener" aria-label="Ask Claude about Clicksone (opens in a new tab)"><span class="ai-ico ai-claude"><svg viewBox="0 0 24 24"><g stroke="#fff" stroke-width="2.2" stroke-linecap="round">${[0,30,60,90,120,150].map(a => `<path d="M12 4v16" transform="rotate(${a} 12 12)"/>`).join('')}</g></svg></span><span class="ai-label">Ask Claude</span><span class="ai-go">${I.arrowUR}</span></a>
+          <a class="ai-btn" href="https://chatgpt.com/?q=${q}" target="_blank" rel="noopener" aria-label="Ask ChatGPT about Clicksone (opens in a new tab)"><span class="ai-ico ai-gpt"><svg viewBox="0 0 24 24"><g fill="none" stroke="#fff" stroke-width="1.7">${[0,60,120].map(a => `<ellipse cx="12" cy="12" rx="8" ry="3.6" transform="rotate(${a} 12 12)"/>`).join('')}</g></svg></span><span class="ai-label">Ask ChatGPT</span><span class="ai-go">${I.arrowUR}</span></a>
+          <a class="ai-btn" href="https://www.perplexity.ai/search?q=${q}" target="_blank" rel="noopener" aria-label="Ask Perplexity about Clicksone (opens in a new tab)"><span class="ai-ico ai-pplx"><svg viewBox="0 0 24 24"><g fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3v18M5 7l7 5 7-5M5 7v9l7-4 7 4V7M8 4.5v5M16 4.5v5"/></g></svg></span><span class="ai-label">Ask Perplexity</span><span class="ai-go">${I.arrowUR}</span></a>
         </div>
       </div>
     </div>
@@ -786,7 +813,7 @@ const PARTIALS = {
 <footer class="site-footer">
   <div class="container">
     <div class="f-top">
-      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-light.png" alt="Clicksone" width="141" height="36"></a>
+      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
       <nav class="f-legal" aria-label="Legal">
         <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>

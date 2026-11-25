@@ -277,6 +277,9 @@ function initHeader() {
   const update = () => {
     const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
     bar.style.setProperty('--p', max > 0 ? Math.min(1, Math.max(0, y / max)).toFixed(4) : 0);
+    const lt = Math.min(1, Math.max(0, (y - 40) / 360)); // 0 at the top → 1 once you are below the hero's top
+    bar.style.setProperty('--lt', lt.toFixed(3));
+    bar.classList.toggle('is-light', lt > .5);
     const locked = (dd && dd.classList.contains('open')) || (mm && !mm.hidden);
     if (locked || y < 120 || y < lastY) bar.classList.remove('is-hidden');
     else if (y > lastY + 2) bar.classList.add('is-hidden');
@@ -437,6 +440,8 @@ function initWork() {
   loadBtn?.addEventListener('click', () => { const from = per * pages; pages++; layout(true, from); });
   layout(false);
   moveInd();
+  const qcat = new URLSearchParams(location.search).get('cat'); // e.g. work.html?cat=social from the What We Do circle
+  if (qcat && tabs.some(t => t.dataset.filter === qcat)) apply(qcat);
   document.fonts?.ready.then(() => { moveInd(); measureTags(); });
   addEventListener('resize', () => { moveInd(); measureTags(); });
   tabs.forEach(t => t.addEventListener('click', () => apply(t.dataset.filter)));
@@ -524,10 +529,12 @@ function initFlipbook() {
 
 /* ---------- 11d. Services: stacked sticky cards (previous card shrinks + dims) ---------- */
 function initOrbit() {
-  const box = $('.w-orbit');
-  if (!box) return;
+  $$('.w-orbit').forEach(setupOrbit);
+}
+function setupOrbit(box) {
   const chars = window.CS.CHARACTERS, dots = $$('.wo-dot', box), panel = $('.wo-panel', box), hero = $('.wo-hero', box);
-  let cur = 0;
+  let cur = box.dataset.start ? +box.dataset.start : 0;
+  const view = $('a.wo-view', box);
   const select = i => {
     if (i === cur) return;
     cur = i;
@@ -540,12 +547,15 @@ function initOrbit() {
       $('.wo-desc', panel).textContent = ch.desc;
       $('.wo-tags', panel).innerHTML = ch.tags.map(t => `<li>${t}</li>`).join('');
       hero.src = `assets/characters/${ch.img}.jpg`;
+      if (view) view.href = `work.html?cat=${ch.id}`;
+      box.classList.add('has-pick');
       panel.classList.remove('is-swapping'); hero.classList.remove('is-swapping');
+      box.classList.remove('just-picked'); void box.offsetWidth; box.classList.add('just-picked');
     }, reduced ? 0 : 220);
   };
   dots.forEach((d, k) => d.addEventListener('click', () => select(k)));
   // "See This Work" filters the grid below to this character's category
-  $('.wo-view', box)?.addEventListener('click', () => {
+  $('button.wo-view', box)?.addEventListener('click', () => {
     const tab = $$('.tabs .tab').find(t => t.dataset.filter === chars[cur].id);
     if (tab) { tab.click(); $('.work-grid')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); }
   });
