@@ -320,7 +320,7 @@ const PARTIALS = {
 <header class="site-header" id="top">
   <div class="nav-bar">
     <div class="nav-in">
-      <a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
+      <a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-light.png" alt="Clicksone" width="141" height="36"></a>
       <nav class="nav" aria-label="Main">
         <span class="nav-glide" aria-hidden="true"></span>
         ${link('about.html', 'About Us', 'about')}
@@ -534,7 +534,7 @@ const PARTIALS = {
     return `
 <section class="section compare-sec">
   <div class="container">
-    <div class="center-head reveal on-dark">${eyebrow('Why Clicksone')}<h2>One Team Instead of Five Trade-offs</h2></div>
+    <div class="center-head reveal on-dark"><p class="eyebrow eyebrow-logo">Why <img src="assets/brand/wordmark-light.png" alt="Clicksone" width="86" height="22"></p><h2>One Team Instead of Five Trade-offs</h2></div>
     <div class="compare reveal">
       <div class="compare-scroll">
         <table>
@@ -548,28 +548,23 @@ const PARTIALS = {
   },
 
   process: () => `
-<section class="process-sec" id="process">
-  <div class="proc-pin">
-    <div class="container proc-top">
+<section class="section process-sec" id="process">
+  <div class="container">
+    <div class="split-head">
       <div class="reveal">${eyebrow('Process')}<h2>From Strategy to Launch, <span class="muted">Built as One Workflow</span></h2></div>
-      <div class="proc-meta reveal" style="--d:.1s">
-        <p class="lead">Five clear stages, one team. You always know what is happening, what ships next and who owns it.</p>
-        <div class="proc-bar" aria-hidden="true"><i></i></div>
-      </div>
+      <p class="lead reveal" style="--d:.1s">Five clear stages, one team. Hover over a stage to see what happens in it.</p>
     </div>
-    <div class="proc-viewport">
-      <ol class="proc-track">
-        ${PROCESS.map(([t, d, outs], i) => `
-        <li class="pc${i === 0 ? ' is-active' : ''}">
-          <span class="pc-num" aria-hidden="true">0${i + 1}</span>
-          <div class="pc-body">
-            <p class="pc-step">Stage ${i + 1} of ${PROCESS.length}</p>
-            <h3>${t}</h3>
-            <p>${d}</p>
-            <ul class="pc-out">${outs.map(o => `<li>${o}</li>`).join('')}</ul>
-          </div>
-        </li>`).join('')}
-      </ol>
+    <div class="process reveal">
+      ${PROCESS.map(([t, d, outs], i) => `
+      <article class="step${i === 0 ? ' is-open' : ''}" tabindex="0">
+        <span class="step-n">0${i + 1}</span>
+        <span class="step-big" aria-hidden="true">0${i + 1}</span>
+        <div class="step-body">
+          <h3>${t}</h3>
+          <p>${d}</p>
+          <ul class="step-out">${outs.map(o => `<li>${o}</li>`).join('')}</ul>
+        </div>
+      </article>`).join('')}
     </div>
   </div>
 </section>`,
@@ -705,7 +700,7 @@ const PARTIALS = {
 <footer class="site-footer">
   <div class="container">
     <div class="f-top">
-      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
+      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-light.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
       <nav class="f-legal" aria-label="Legal">
         <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>

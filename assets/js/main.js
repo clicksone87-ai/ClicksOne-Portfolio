@@ -474,38 +474,39 @@ function initRing() {
 }
 
 /* ---------- 11c. About: flip-book ----------
-   Click 01 Strategy / 02 Design / 03 Execution to turn to that spread; it also turns on its own while
-   on screen (pauses on hover/focus). No scroll pinning, so nothing overlaps neighbouring sections.
+   Pages turn by themselves as the book scrolls up the screen (Strategy → Design → Execution) and turn back
+   when scrolling up. The 01 / 02 / 03 buttons jump to a page. No pinning, so nothing overlaps.
    Reduced motion or no GSAP: the plain list (.pillars-list) is shown instead. */
 function initFlipbook() {
   const stage = $('.fb-stage');
   if (!stage || reduced || !window.gsap) return;
-  const leaves = $$('.fb-leaf', stage), steps = $$('.fb-step', stage);
+  const book = $('.flipbook', stage), leaves = $$('.fb-leaf', stage), steps = $$('.fb-step', stage);
   document.documentElement.classList.add('has-flipbook');
-  let page = 0, timer = 0, paused = false, visible = false;
+  let page = 0, scrollPage = 0;
   const order = () => leaves.forEach((l, k) => {
     const a = +gsap.getProperty(l, '--a') || 0;
     l.style.zIndex = a > 90 ? 10 + k : 20 - k; // turned pages stack on the left in reading order
   });
   const go = n => {
-    page = (n + steps.length) % steps.length;
+    n = Math.max(0, Math.min(steps.length - 1, n));
+    if (n === page) return;
+    page = n;
     steps.forEach((s, k) => { const on = k === page; s.classList.toggle('is-active', on); s.setAttribute('aria-pressed', on); });
-    // leaf k is turned when we are past page k; turn them one after another
-    leaves.forEach((l, k) => gsap.to(l, { '--a': page > k ? 180 : 0, duration: .9, ease: 'power2.inOut',
-      delay: page > k ? k * .12 : (leaves.length - 1 - k) * .12, onUpdate: order }));
-    schedule();
+    leaves.forEach((l, k) => gsap.to(l, { '--a': page > k ? 180 : 0, duration: .9, ease: 'power2.inOut', overwrite: true,
+      delay: page > k ? k * .1 : (leaves.length - 1 - k) * .1, onUpdate: order }));
   };
-  const schedule = () => {
-    clearTimeout(timer);
-    if (paused || !visible) return;
-    timer = setTimeout(() => go(page + 1), 4200);
+  // where the book's centre sits on screen decides the page: lower third → 01, middle → 02, upper → 03
+  const fromScroll = () => {
+    const r = book.getBoundingClientRect(), c = (r.top + r.height / 2) / innerHeight;
+    const n = c > .62 ? 0 : c > .38 ? 1 : 2;
+    if (n !== scrollPage) { scrollPage = n; go(n); } // only react when the scroll position crosses a band
   };
   steps.forEach((s, k) => s.addEventListener('click', () => go(k)));
-  stage.addEventListener('mouseenter', () => { paused = true; clearTimeout(timer); });
-  stage.addEventListener('mouseleave', () => { paused = false; schedule(); });
-  stage.addEventListener('focusin', () => { paused = true; clearTimeout(timer); });
-  stage.addEventListener('focusout', e => { if (!stage.contains(e.relatedTarget)) { paused = false; schedule(); } });
-  whileVisible(stage, () => { visible = true; schedule(); }, () => { visible = false; clearTimeout(timer); }, .4);
+  let h = null;
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !h) { h = onScrollFrame(fromScroll); fromScroll(); }
+    else if (!e.isIntersecting && h) { removeEventListener('scroll', h); h = null; }
+  }).observe(stage);
 }
 
 /* ---------- 11d. Services: stacked sticky cards (previous card shrinks + dims) ---------- */
@@ -643,33 +644,18 @@ function initImpact() {
   });
 }
 
-/* ---------- 8. Process: pinned horizontal track (GSAP); swipe row on phones ---------- */
+/* ---------- 8. Process: panels expand on hover / focus / tap ---------- */
 function initProcess() {
-  const pinEl = $('.proc-pin');
-  if (!pinEl) return;
-  const track = $('.proc-track', pinEl), vp = $('.proc-viewport', pinEl), bar = $('.proc-bar i', pinEl);
-  const cards = $$('.pc', track);
-  const setActive = p => {
-    const n = Math.round(p * (cards.length - 1));
-    cards.forEach((c, k) => c.classList.toggle('is-active', k === n));
-    if (bar) bar.style.transform = `scaleX(${Math.max(.04, p)})`;
-  };
-  // native fallback: horizontal scroll with snap, active card follows the scroll position
-  vp.addEventListener('scroll', () => setActive(vp.scrollLeft / Math.max(1, vp.scrollWidth - vp.clientWidth)), { passive: true });
-  if (reduced || !window.gsap || !window.ScrollTrigger) return;
-  const mm = gsap.matchMedia();
-  mm.add('(min-width: 761px)', () => {
-    pinEl.classList.add('is-pinned');
-    const dist = () => Math.max(0, track.scrollWidth - vp.clientWidth);
-    const tw = gsap.to(track, {
-      x: () => -dist(), ease: 'none',
-      scrollTrigger: {
-        trigger: pinEl, start: 'top top', end: () => `+=${dist()}`,
-        pin: true, scrub: .6, invalidateOnRefresh: true, anticipatePin: 1,
-        onUpdate: self => setActive(self.progress),
-      },
+  $$('.process').forEach(proc => {
+    const steps = $$('.step', proc);
+    const open = s => steps.forEach(x => x.classList.toggle('is-open', x === s));
+    steps.forEach(s => {
+      s.addEventListener('mouseenter', () => open(s));
+      s.addEventListener('focus', () => open(s));
+      s.addEventListener('click', () => open(s));
     });
-    return () => { pinEl.classList.remove('is-pinned'); tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); gsap.set(track, { x: 0 }); };
+    proc.addEventListener('mouseleave', () => open(steps[0]));
+    proc.addEventListener('focusout', e => { if (!proc.contains(e.relatedTarget)) open(steps[0]); });
   });
 }
 
@@ -714,18 +700,18 @@ function initReach() {
     rv.classList.add('run');
     timer = setTimeout(() => go(i + 1), MS);
   };
-  const go = k => {
+  const go = (k, user = false) => {
     i = (k + n) % n;
     slides.forEach((s, j) => { s.classList.toggle('is-active', j === i); s.toggleAttribute('aria-hidden', j !== i); });
     labels.forEach(l => { const on = +l.dataset.i === i; l.classList.toggle('is-active', on); l.setAttribute('aria-pressed', on); });
     if (count) count.textContent = String(i + 1).padStart(2, '0');
     GLOBE.index = i;
-    if (GLOBE.ready) GLOBE.focus(i);
+    if (GLOBE.ready && user) GLOBE.focus(i);
     schedule();
   };
-  labels.forEach(l => l.addEventListener('click', () => go(+l.dataset.i)));
-  $('.rv-prev', rv).addEventListener('click', () => go(i - 1));
-  $('.rv-next', rv).addEventListener('click', () => go(i + 1));
+  labels.forEach(l => l.addEventListener('click', () => go(+l.dataset.i, true)));
+  $('.rv-prev', rv).addEventListener('click', () => go(i - 1, true));
+  $('.rv-next', rv).addEventListener('click', () => go(i + 1, true));
   const pause = on => { paused = on; rv.classList.toggle('paused', on); if (on) clearTimeout(timer); else schedule(); };
   stage.addEventListener('mouseenter', () => pause(true));
   stage.addEventListener('mouseleave', () => pause(false));
@@ -760,9 +746,10 @@ function mountGlobe(wrap, createGlobe) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const TAU = Math.PI * 2;
   const markers = () => places.map(g => ({ location: [g.lat, g.lon], size: target && g.review === target.i ? .1 : .05 }));
+  let holdUntil = 0;
   GLOBE.focus = i => {
     const g = places.find(x => x.review === i);
-    if (g) target = { ...anglesFor(g.lat, g.lon), i };
+    if (g) { target = { ...anglesFor(g.lat, g.lon), i }; holdUntil = 0; }
   };
   const globe = createGlobe(canvas, {
     devicePixelRatio: dpr, width: width * dpr, height: width * dpr,
@@ -773,9 +760,14 @@ function mountGlobe(wrap, createGlobe) {
       if (!drag && target) {
         let d = (target.phi - (phi + dragOffset)) % TAU;
         if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU;
-        const k = reduced ? 1 : .06;
+        const k = reduced ? 1 : .05;
         phi += d * k; theta += (target.theta - theta) * k;
-      } else if (!drag) { phi += velocity; velocity *= .94; }
+        // once it has arrived, hold on the country for a moment, then go back to spinning
+        if (Math.abs(d) < .01) { if (!holdUntil) holdUntil = performance.now() + 3500; else if (performance.now() > holdUntil) target = null; }
+      } else if (!drag) {
+        phi += (reduced ? 0 : .0028) + velocity; velocity *= .94; // slow, steady spin
+        theta += (.75 - theta) * .02;
+      }
       state.phi = phi + dragOffset;
       state.theta = theta;
       state.width = width * dpr; state.height = width * dpr;
@@ -784,7 +776,6 @@ function mountGlobe(wrap, createGlobe) {
     },
   });
   GLOBE.ready = true;
-  GLOBE.focus(GLOBE.index);
   requestAnimationFrame(() => canvas.classList.add('ready'));
   wrap.style.pointerEvents = 'auto';
   canvas.style.cursor = 'grab';
