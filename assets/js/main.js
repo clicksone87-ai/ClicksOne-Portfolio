@@ -563,6 +563,38 @@ function setupOrbit(box) {
   whileVisible(box, () => box.classList.remove('is-off'), () => box.classList.add('is-off'), 0);
 }
 
+function initWwd() {
+  const sec = $('.wwd');
+  if (!sec) return;
+  const chars = window.CS.CHARACTERS, cards = $$('.wwd-card', sec), box = $('.wwd-detail', sec);
+  let last = null;
+  const open = (i, from) => {
+    const ch = chars[i];
+    cards.forEach((c, k) => c.classList.toggle('is-active', k === i));
+    $('.wwd-photo', box).src = `assets/characters/${ch.img}.jpg`;
+    $('.wwd-count', box).textContent = `${String(i + 1).padStart(2, '0')} / ${String(chars.length).padStart(2, '0')}`;
+    $('.wwd-name2', box).textContent = ch.name;
+    $('.wwd-desc', box).textContent = ch.desc;
+    $('.wwd-tags', box).innerHTML = ch.tags.map(t => `<li>${t}</li>`).join('');
+    $('.wwd-view', box).href = `work.html?cat=${ch.id}`;
+    box.hidden = false; sec.classList.add('is-open');
+    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+    last = from || null;
+    $('.wwd-close', box).focus({ preventScroll: true });
+  };
+  const close = () => {
+    box.hidden = true; sec.classList.remove('is-open');
+    cards.forEach(c => c.classList.remove('is-active'));
+    last?.focus({ preventScroll: true });
+  };
+  cards.forEach((c, k) => c.addEventListener('click', () => open(k, c)));
+  $('.wwd-close', box).addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) close(); });
+  sec.addEventListener('click', e => { if (!box.hidden && !box.contains(e.target) && !e.target.closest('.wwd-card')) close(); });
+  sec.classList.add('is-off');
+  whileVisible(sec, () => sec.classList.remove('is-off'), () => sec.classList.add('is-off'), 0);
+}
+
 function initCharacters() {
   $$('.char-visual').forEach(v => { v.classList.add('is-off'); whileVisible(v, () => v.classList.remove('is-off'), () => v.classList.add('is-off'), 0); });
 }
@@ -920,6 +952,7 @@ initSmooth();
 initFlipbook();
 initStack();
 initCharacters();
+initWwd();
 initOrbit();
 initBanners();
 initServices();

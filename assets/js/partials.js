@@ -16,6 +16,13 @@ const SITE = {
   social: {
     linkedin: '#', whatsapp: '#', facebook: '#', behance: '#', instagram: '#',
   },
+  // Where each rating badge in the testimonials links to. Replace with your exact profile pages.
+  reviews: {
+    designrush: 'https://www.designrush.com/',
+    trustpilot: 'https://www.trustpilot.com/search?query=clicksone',
+    clutch: 'https://clutch.co/',
+    google: 'https://www.google.com/search?q=Clicksone+reviews',
+  },
   // Placeholder avatars on the floating discovery bar and hero "Book an intro call" link.
   // Set img to a photo/logo path (e.g. 'assets/team/sara.jpg') to replace the initials.
   avatars: [
@@ -383,6 +390,32 @@ const serviceOrbit = () => `
     </div>
   </div>`;
 
+// Home "What We Do": a full-width dark section where the characters circle a large "What We Do"
+// (in the spirit of brandappart.com's work ring). Clicking a card opens that character's details.
+const wwdSection = () => `
+<section class="wwd" id="services" aria-label="What we do">
+  <div class="wwd-ring">
+    ${CHARACTERS.map((ch, i) => `<button type="button" class="wwd-card" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" data-cursor="${ch.name}"><span class="wwd-in"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"><span class="wwd-name">${ch.name}</span></span></button>`).join('')}
+  </div>
+  <div class="wwd-center">
+    <p class="wwd-kicker">${CHARACTERS.length} specialists · one connected team</p>
+    <h2 class="wwd-title">What We Do</h2>
+    <p class="wwd-sub">Click a character to see what they do</p>
+  </div>
+  <div class="wwd-detail" role="dialog" aria-label="Service details" hidden>
+    <button class="wwd-close" type="button" aria-label="Close">${I.close}</button>
+    <img class="wwd-photo" src="assets/characters/${CHARACTERS[0].img}.jpg" alt="">
+    <p class="wwd-count"></p>
+    <h3 class="wwd-name2"></h3>
+    <p class="wwd-desc"></p>
+    <ul class="tags wwd-tags"></ul>
+    <div class="wwd-actions">
+      <a class="btn btn-primary wwd-view" href="work.html"><span>See This Work</span><span class="btn-ico">${I.arrow}</span></a>
+      <a class="btn btn-glass btn-solo" href="${SITE.bookUrl}">Start a Project</a>
+    </div>
+  </div>
+</section>`;
+
 const serviceCard = (s, i) => `
   <article class="svc-card char-card" id="${s.id}" style="--i:${i}">
     <div class="svc-card-in">
@@ -604,7 +637,7 @@ const PARTIALS = {
 </section>`,
 
   // Six services as pinned, stacked cards (home + services page). Keeps #branding, #uiux … anchors.
-  services: (opts = {}) => `
+  services: (opts = {}) => opts.orbit ? wwdSection() : `
 <section class="section" id="${opts.listId || 'services'}">
   <div class="container">
     ${opts.noHead ? '' : `<div class="split-head">
@@ -710,7 +743,7 @@ const PARTIALS = {
         </div>
         <div class="rv" aria-roledescription="carousel" aria-label="Client reviews">
           <h2 class="reviews-title">What Clients Say <span class="muted">About Clicksone</span></h2>
-          <div class="rv-badges"><span class="rv-badge-stack" aria-hidden="true"><img src="assets/badges/designrush.png" alt=""><img src="assets/badges/trustpilot.png" alt=""><img src="assets/badges/clutch.png" alt=""><img src="assets/badges/google.png" alt=""></span><span>Rated by founders on <b>DesignRush, Clutch, Trustpilot and Google</b></span></div>
+          <div class="rv-badges"><span class="rv-badge-stack">${[['designrush', 'DesignRush'], ['trustpilot', 'Trustpilot'], ['clutch', 'Clutch'], ['google', 'Google']].map(([k, n], i) => `<a class="rv-badge" href="${SITE.reviews[k]}" target="_blank" rel="noopener" style="--k:${i}" aria-label="Clicksone on ${n} (opens in a new tab)" data-cursor="${n}"><img src="assets/badges/${k}.png" alt=""></a>`).join('')}</span><span>Rated by founders on <b>DesignRush, Clutch, Trustpilot and Google</b></span></div>
           <div class="rv-top"><span class="stars" aria-label="5 out of 5 stars">★★★★★</span><span class="rv-count"><b>01</b> / 0${TESTIMONIALS.length}</span></div>
           <div class="rv-slides" aria-live="polite">
             ${TESTIMONIALS.map((t, i) => `
@@ -813,7 +846,7 @@ const PARTIALS = {
 <footer class="site-footer">
   <div class="container">
     <div class="f-top">
-      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
+      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-light.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
       <nav class="f-legal" aria-label="Legal">
         <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>

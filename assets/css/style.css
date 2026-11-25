@@ -2333,3 +2333,131 @@ button.g-label:focus-visible > span { outline: 2px solid var(--c-white); outline
   .nav-bar, .nav-bar::before, .hero-bg::before, .site-footer, .tabs .tab.is-active .tab-ava { animation: none !important; }
 }
 .f-email { line-height: 1.2; padding-bottom: .12em; }
+
+/* =========================================================================
+   V12 — tighter spacing, animated category boxes, full-width What We Do ring,
+          clickable rating badges, dark flowing footer
+   ========================================================================= */
+/* less empty space between sections */
+@media (min-width: 641px) { :root { --section-y: clamp(56px, 6.2vw, 100px); } }
+.logos-sec { padding-bottom: calc(var(--section-y) * .35); }
+#work { padding-top: calc(var(--section-y) * .45); }
+#about { padding-top: calc(var(--section-y) * .6); }
+
+/* ---------- category boxes: a soft shimmer ripples across them; characters gently float ---------- */
+.tabs .tab { position: relative; overflow: hidden; isolation: isolate; }
+.tabs .tab::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 35%, rgba(138, 43, 226, .16) 50%, transparent 65%);
+  transform: translateX(-120%); animation: tab-sheen 9s ease-in-out infinite; animation-delay: calc(var(--k, 0) * .32s);
+}
+.tabs .tab.is-active::after { background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .28) 50%, transparent 65%); }
+@keyframes tab-sheen { 0%, 78% { transform: translateX(-120%); } 92%, 100% { transform: translateX(120%); } }
+.tab-ava img { animation: ava-float 4.2s ease-in-out infinite; animation-delay: calc(var(--k, 0) * -.3s); }
+@keyframes ava-float { 50% { translate: 0 -2px; scale: 1.04; } }
+.js .tabs.reveal.is-in .tab { animation: tab-in .6s var(--ease-out) both; animation-delay: calc(var(--k, 0) * 35ms); }
+@keyframes tab-in { from { opacity: 0; translate: 0 14px; } }
+
+/* ---------- What We Do: full-width dark ring of characters around a big title ---------- */
+.wwd {
+  --cw: clamp(84px, 8vw, 128px); --r: min(36vw, calc(50svh - var(--cw) * .9), 430px);
+  position: relative; isolation: isolate; overflow: hidden; display: grid; place-items: center;
+  height: max(640px, min(100svh, 920px)); color: var(--c-white);
+  background: radial-gradient(55% 55% at 50% 50%, rgba(123, 44, 191, .38), transparent 70%), radial-gradient(40% 40% at 85% 10%, rgba(138, 43, 226, .2), transparent 70%), var(--c-ink);
+}
+.wwd-ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; animation: wwd-spin 90s linear infinite; }
+.wwd-card {
+  position: absolute; left: 0; top: 0; width: var(--cw); aspect-ratio: 3 / 4; padding: 0; border-radius: 16px; cursor: pointer;
+  margin: calc(var(--cw) * -.667) 0 0 calc(var(--cw) * -.5);
+  transform: rotate(var(--a)) translateY(calc(var(--r) * -1)) rotate(calc(var(--a) * -1));
+}
+.wwd-in {
+  position: relative; display: block; width: 100%; height: 100%; overflow: hidden; border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 22px 44px -18px rgba(0, 0, 0, .85);
+  animation: wwd-spin 90s linear infinite reverse; transition: scale .45s var(--ease-out), opacity .4s, filter .4s, border-color .3s;
+}
+.wwd-in img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 6%; }
+.wwd-name { position: absolute; left: 6px; right: 6px; bottom: 6px; padding: 4px 6px; border-radius: 8px; background: rgba(9, 5, 20, .75); font-size: 10.5px; font-weight: 600; line-height: 1.2; text-align: center; opacity: 0; transition: opacity .3s; }
+@keyframes wwd-spin { to { transform: rotate(360deg); } }
+@media (hover: hover) and (pointer: fine) {
+  .wwd-card:hover .wwd-in { scale: 1.12; border-color: rgba(201, 160, 255, .7); }
+  .wwd-card:hover .wwd-name { opacity: 1; }
+  .wwd:has(.wwd-center:hover) .wwd-in { scale: .86; opacity: .55; }
+}
+.wwd-card:focus-visible { outline: none; } .wwd-card:focus-visible .wwd-in { border-color: #c9a0ff; scale: 1.1; }
+.wwd-center { position: relative; z-index: 2; max-width: 42ch; text-align: center; transition: opacity .35s var(--ease-out); }
+.wwd-kicker { font-size: 13px; font-weight: 600; color: #c9a0ff; }
+.wwd .wwd-title { margin: 12px 0; max-width: 8ch; margin-inline: auto; font: 800 clamp(48px, 7vw, 112px)/.9 var(--f-head); letter-spacing: -.05em; color: rgba(255, 255, 255, .4); transition: color .5s var(--ease-out); }
+.wwd-center:hover .wwd-title { color: var(--c-white); }
+.wwd-sub { font-size: 14px; color: rgba(255, 255, 255, .62); }
+.wwd.is-open .wwd-ring, .wwd.is-open .wwd-in, .wwd.is-off .wwd-ring, .wwd.is-off .wwd-in { animation-play-state: paused; }
+.wwd.is-open .wwd-card:not(.is-active) .wwd-in { opacity: .25; filter: grayscale(.6); }
+.wwd.is-open .wwd-card.is-active .wwd-in { scale: 1.14; border-color: #c9a0ff; }
+.wwd.is-open .wwd-center { opacity: 0; pointer-events: none; }
+.wwd-detail {
+  position: absolute; z-index: 3; left: 50%; top: 50%; translate: -50% -50%; width: min(440px, 86vw); padding: 26px 24px 24px; text-align: center;
+  border-radius: 24px; background: rgba(20, 12, 36, .82); border: 1px solid rgba(255, 255, 255, .14);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .85);
+}
+.wwd-detail.pop { animation: wwd-pop .5s var(--ease-out); }
+@keyframes wwd-pop { from { opacity: 0; scale: .9; } }
+.wwd-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--c-white); }
+.wwd-close svg { width: 18px; }
+.wwd-photo { width: 96px; height: 96px; margin: 0 auto 12px; border-radius: 50%; object-fit: cover; object-position: 50% 6%; border: 3px solid rgba(201, 160, 255, .6); box-shadow: 0 0 0 6px rgba(138, 43, 226, .18); }
+.wwd-count { font-size: 12px; font-weight: 600; color: #c9a0ff; }
+.wwd-name2 { margin: 6px 0 10px; font: 700 clamp(22px, 2.2vw, 28px)/1.05 var(--f-head); letter-spacing: -.02em; color: var(--c-white); }
+.wwd-desc { font-size: 14.5px; line-height: 1.6; color: rgba(255, 255, 255, .76); }
+.wwd-tags { justify-content: center; margin-top: 14px; }
+.wwd-tags li { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); color: var(--c-white); }
+.wwd-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+@media (max-width: 640px) {
+  .wwd { --cw: 52px; --r: 40vw; height: 560px; }
+  .wwd .wwd-title { font-size: 44px; }
+  .wwd-name { display: none; }
+  .wwd-detail { width: 92vw; padding: 20px 16px; }
+  .wwd-actions .btn { width: 100%; justify-content: space-between; }
+}
+
+/* ---------- testimonial rating badges: clickable, gently moving ---------- */
+.rv-badge { position: relative; display: block; margin-left: -10px; border-radius: 50%; animation: badge-bob 4s ease-in-out infinite; animation-delay: calc(var(--k, 0) * -.6s); transition: transform .35s var(--ease-out), z-index 0s; }
+.rv-badge:first-child { margin-left: 0; }
+.rv-badge img { width: 42px; height: 42px; margin: 0; border-radius: 50%; object-fit: cover; border: 2px solid var(--c-ink); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .7); }
+@keyframes badge-bob { 50% { translate: 0 -3px; } }
+@media (hover: hover) and (pointer: fine) {
+  .rv-badge-stack:hover .rv-badge { transform: translateX(calc(var(--k, 0) * 12px)); }
+  .rv-badge:hover { z-index: 2; transform: translateX(calc(var(--k, 0) * 12px)) scale(1.15) !important; }
+}
+.rv-badge:focus-visible { outline: 2px solid #c9a0ff; outline-offset: 2px; }
+
+/* ---------- footer: the header's dark flowing gradient ---------- */
+.site-footer {
+  color: var(--c-white); border-top: 1px solid rgba(255, 255, 255, .06);
+  background: linear-gradient(100deg, #090514 0%, #1a0b2e 28%, color-mix(in srgb, #7B2CBF 60%, #090514) 52%, #1a0b2e 76%, #090514 100%);
+  background-size: 260% 100%; animation: nav-flow 16s ease-in-out infinite alternate;
+}
+.f-top { border-bottom-color: rgba(255, 255, 255, .12); }
+.f-tag { color: rgba(255, 255, 255, .74); }
+.f-legal a, .f-nav a, .f-col a { color: rgba(255, 255, 255, .86); }
+.f-legal a:hover, .f-nav a:hover, .f-col a:hover { color: #d8bdff; }
+.f-col h3 { color: var(--c-white); }
+.f-col p, .f-bot { color: rgba(255, 255, 255, .72); }
+.f-col a svg { color: #c9a0ff; }
+.socials a { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .12); color: var(--c-white); }
+.socials a:hover { background: var(--c-electric); color: var(--c-white); }
+.f-email { border-top-color: rgba(255, 255, 255, .12); background: linear-gradient(90deg, var(--c-white), #d8bdff 60%, var(--c-electric)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs .tab::after, .tab-ava img, .js .tabs.reveal.is-in .tab, .wwd-ring, .wwd-in, .rv-badge, .site-footer { animation: none !important; }
+}
+
+/* tighter gaps around the banner, Our Work and About */
+.section-tight { padding-block: calc(var(--section-y) * .35); }
+#work { padding-bottom: calc(var(--section-y) * .5); }
+#about { padding-top: calc(var(--section-y) * .35); }
+/* phones: the What We Do details open in the flow instead of overlapping the ring */
+@media (max-width: 640px) {
+  .wwd.is-open { height: auto; padding: 28px 0; }
+  .wwd.is-open .wwd-ring, .wwd.is-open .wwd-center { display: none; }
+  .wwd.is-open .wwd-detail { position: relative; left: auto; top: auto; translate: none; }
+  .wwd-desc { font-size: 13.5px; }
+}
