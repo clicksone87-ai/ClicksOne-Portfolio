@@ -334,6 +334,29 @@ const soonCard = s => `
     <p>New ${s.name.toLowerCase()} work is being added here. Want your project to be next?</p>
   </article>`;
 
+// "Meet the team" ring for the work section: characters circle slowly; clicking one shows its details
+const workOrbit = () => `
+  <div class="w-orbit reveal">
+    <div class="wo-stage">
+      <div class="wo-ring">
+        ${CHARACTERS.map((ch, i) => `<button type="button" class="wo-dot${i === 0 ? ' is-active' : ''}" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" aria-pressed="${i === 0}"><span class="wo-face"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"></span></button>`).join('')}
+      </div>
+      <div class="wo-center"><img class="wo-hero" src="assets/characters/${CHARACTERS[0].img}.jpg" alt="" decoding="async"><span class="wo-center-ring" aria-hidden="true"></span></div>
+    </div>
+    <div class="wo-panel" aria-live="polite">
+      <p class="eyebrow">Meet the team</p>
+      <p class="wo-count">01 / ${String(CHARACTERS.length).padStart(2, '0')}</p>
+      <h3 class="wo-name">${CHARACTERS[0].name}</h3>
+      <p class="wo-desc">${CHARACTERS[0].desc}</p>
+      <ul class="tags wo-tags">${CHARACTERS[0].tags.map(t => `<li>${t}</li>`).join('')}</ul>
+      <div class="wo-actions">
+        <button type="button" class="btn btn-primary wo-view"><span>See This Work</span><span class="btn-ico">${I.arrow}</span></button>
+        <a class="btn btn-ghost btn-solo" href="${SITE.bookUrl}">Start a Project</a>
+      </div>
+      <p class="wo-hint">Click a character on the circle to meet them.</p>
+    </div>
+  </div>`;
+
 const serviceCard = (s, i) => `
   <article class="svc-card char-card" id="${s.id}" style="--i:${i}">
     <div class="svc-card-in">
@@ -443,15 +466,12 @@ const PARTIALS = {
 </div>`,
 
   'cta-banner': () => {
-    const faces = ['branding', 'uiux', 'web', 'motion', 'social'];
     return `
 <section class="section-tight">
   <div class="container">
     <div class="cta-pro reveal">
       <span class="cp-grid" aria-hidden="true"></span>
       <span class="cp-spot" aria-hidden="true"></span>
-      <figure class="cp-char cp-left" aria-hidden="true"><img src="assets/characters/branding.jpg" alt="" loading="lazy" decoding="async"></figure>
-      <figure class="cp-char cp-right" aria-hidden="true"><img src="assets/characters/video.jpg" alt="" loading="lazy" decoding="async"></figure>
       <div class="cta-banner cp-inner">
         <p class="cp-pill"><span class="cp-dot" aria-hidden="true"></span>Book a call · Reply within 24 hours</p>
         <h2>Need More Than <span class="cp-hl">One Service?</span></h2>
@@ -460,7 +480,7 @@ const PARTIALS = {
           ${btn('Start a Project', SITE.bookUrl, 'primary', 'data-magnetic')}
           <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
         </div>
-        <p class="cp-team"><span class="cp-faces" aria-hidden="true">${faces.map(f => `<img src="assets/characters/${f}.jpg" alt="" loading="lazy" decoding="async">`).join('')}</span><span>14 specialists. One connected team.</span></p>
+        <p class="cp-team"><span>14 specialists. One connected team.</span></p>
       </div>
     </div>
   </div>
@@ -504,6 +524,7 @@ const PARTIALS = {
       <div class="reveal">${eyebrow('Our Work')}<h2>Recent Work From Our <span class="muted">Creative Design Agency</span></h2></div>
       <p class="lead reveal" style="--d:.1s">Websites, brands, products and decks we’ve designed and built for startups and growing companies.</p>
     </div>`}
+    ${opts.orbit ? workOrbit() : ''}
     <div class="tabs reveal" role="tablist" aria-label="Filter work by category">
       <span class="tab-ind" aria-hidden="true"></span>
       ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}">${l}</button>`).join('')}

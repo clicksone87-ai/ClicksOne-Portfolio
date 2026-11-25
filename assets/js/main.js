@@ -523,6 +523,36 @@ function initFlipbook() {
 }
 
 /* ---------- 11d. Services: stacked sticky cards (previous card shrinks + dims) ---------- */
+function initOrbit() {
+  const box = $('.w-orbit');
+  if (!box) return;
+  const chars = window.CS.CHARACTERS, dots = $$('.wo-dot', box), panel = $('.wo-panel', box), hero = $('.wo-hero', box);
+  let cur = 0;
+  const select = i => {
+    if (i === cur) return;
+    cur = i;
+    const ch = chars[i];
+    dots.forEach((d, k) => { const on = k === i; d.classList.toggle('is-active', on); d.setAttribute('aria-pressed', on); });
+    panel.classList.add('is-swapping'); hero.classList.add('is-swapping');
+    setTimeout(() => {
+      $('.wo-count', panel).textContent = `${String(i + 1).padStart(2, '0')} / ${String(chars.length).padStart(2, '0')}`;
+      $('.wo-name', panel).textContent = ch.name;
+      $('.wo-desc', panel).textContent = ch.desc;
+      $('.wo-tags', panel).innerHTML = ch.tags.map(t => `<li>${t}</li>`).join('');
+      hero.src = `assets/characters/${ch.img}.jpg`;
+      panel.classList.remove('is-swapping'); hero.classList.remove('is-swapping');
+    }, reduced ? 0 : 220);
+  };
+  dots.forEach((d, k) => d.addEventListener('click', () => select(k)));
+  // "See This Work" filters the grid below to this character's category
+  $('.wo-view', box)?.addEventListener('click', () => {
+    const tab = $$('.tabs .tab').find(t => t.dataset.filter === chars[cur].id);
+    if (tab) { tab.click(); $('.work-grid')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); }
+  });
+  box.classList.add('is-off');
+  whileVisible(box, () => box.classList.remove('is-off'), () => box.classList.add('is-off'), 0);
+}
+
 function initCharacters() {
   $$('.char-visual').forEach(v => { v.classList.add('is-off'); whileVisible(v, () => v.classList.remove('is-off'), () => v.classList.add('is-off'), 0); });
 }
@@ -880,6 +910,7 @@ initSmooth();
 initFlipbook();
 initStack();
 initCharacters();
+initOrbit();
 initBanners();
 initServices();
 initImpact();

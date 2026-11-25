@@ -2137,3 +2137,59 @@ button.g-label:focus-visible > span { outline: 2px solid var(--c-white); outline
 /* hero client logos: one tidy row on desktop */
 @media (min-width: 901px) { .hl-track { flex-wrap: nowrap; justify-content: space-between; gap: clamp(16px, 2.4vw, 40px); width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); } .hl-track .logo-inner { transform: scale(.86); } }
 @media (max-width: 640px) { .cp-pill { white-space: nowrap; font-size: 11.5px; padding: 6px 12px; } .cta-pro .cta-banner .cp-team { flex-direction: column; gap: 8px; } }
+
+/* =========================================================================
+   V9 — faces visible, cleaner Leader, character ring in the work section
+   ========================================================================= */
+/* service character cards: crop from the top so faces are always in view */
+.char-layer img { object-position: 50% 2%; transform-origin: 50% 0%; }
+.hl-card .hl-frame::after { background: linear-gradient(180deg, transparent 72%, rgba(9, 5, 20, .35)); }
+.hl-frame img { object-position: 50% 6%; transform-origin: 50% 0%; }
+
+/* work section: characters circle slowly; click one to meet them */
+.w-orbit {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 80px); align-items: center;
+  margin: 0 0 clamp(40px, 5vw, 72px); padding: clamp(24px, 3.4vw, 52px); border-radius: var(--radius-card);
+  background: radial-gradient(55% 70% at 28% 50%, rgba(138, 43, 226, .12), transparent 70%), var(--c-mist);
+}
+.wo-stage { --dot: 72px; position: relative; width: min(520px, 100%); aspect-ratio: 1; margin-inline: auto; container-type: inline-size; }
+.wo-ring { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(123, 44, 191, .28); animation: wo-spin 80s linear infinite; }
+.wo-dot {
+  position: absolute; left: 50%; top: 50%; width: var(--dot); height: var(--dot); margin: calc(var(--dot) / -2) 0 0 calc(var(--dot) / -2);
+  padding: 0; border-radius: 50%; cursor: pointer;
+  transform: rotate(var(--a)) translateY(calc(-50cqw + var(--dot) / 2 + 4px)) rotate(calc(var(--a) * -1));
+}
+.wo-face {
+  display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; background: var(--c-ink);
+  border: 3px solid var(--c-white); box-shadow: 0 12px 26px -12px rgba(91, 31, 176, .6);
+  animation: wo-spin 80s linear infinite reverse; transition: scale .4s var(--ease-out), border-color .3s, box-shadow .3s;
+}
+.wo-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 3%; transform: scale(1.55); transform-origin: 50% 6%; }
+.wo-dot.is-active .wo-face { scale: 1.18; border-color: var(--c-electric); box-shadow: 0 0 0 5px rgba(138, 43, 226, .22), 0 16px 30px -12px rgba(91, 31, 176, .8); }
+@media (hover: hover) and (pointer: fine) { .wo-dot:not(.is-active):hover .wo-face { scale: 1.12; } }
+.wo-dot:focus-visible { outline: none; } .wo-dot:focus-visible .wo-face { border-color: var(--c-violet); }
+.wo-center { position: absolute; left: 50%; top: 50%; width: 46%; aspect-ratio: 1; translate: -50% -50%; }
+.wo-hero { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: 50% 4%; background: var(--c-ink); box-shadow: 0 30px 60px -24px rgba(91, 31, 176, .75), 0 0 0 8px rgba(255, 255, 255, .8); transition: opacity .22s var(--ease-out), scale .22s var(--ease-out); }
+.wo-hero.is-swapping { opacity: 0; scale: .94; }
+.wo-center-ring { position: absolute; inset: -16px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--c-electric); border-right-color: rgba(123, 44, 191, .5); animation: wo-spin 6s linear infinite; pointer-events: none; }
+@keyframes wo-spin { to { transform: rotate(360deg); } }
+.wo-stage:hover .wo-ring, .wo-stage:hover .wo-face { animation-play-state: paused; }
+.w-orbit.is-off .wo-ring, .w-orbit.is-off .wo-face, .w-orbit.is-off .wo-center-ring { animation-play-state: paused; }
+.wo-panel { transition: opacity .22s var(--ease-out), translate .22s var(--ease-out); }
+.wo-panel.is-swapping { opacity: 0; translate: 0 8px; }
+.wo-count { font-size: 13px; font-weight: 600; color: var(--muted); }
+.wo-name { margin: 10px 0 14px; font: 700 clamp(28px, 3vw, 44px)/1.02 var(--f-head); letter-spacing: -.03em; color: var(--c-text); }
+.wo-desc { max-width: 52ch; color: var(--muted); }
+.wo-tags { margin-top: 18px; }
+.wo-tags li { background: var(--c-white); border: 1px solid var(--line); }
+.wo-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.wo-hint { margin-top: 18px; font-size: 13px; color: var(--muted); }
+@media (max-width: 900px) {
+  .w-orbit { grid-template-columns: minmax(0, 1fr); padding: 22px 16px 26px; text-align: center; }
+  .wo-stage { --dot: 50px; width: min(360px, 100%); }
+  .wo-panel .eyebrow { justify-content: center; }
+  .wo-desc { margin-inline: auto; }
+  .wo-tags, .wo-actions { justify-content: center; }
+}
+@media (max-width: 640px) { .wo-actions .btn { width: 100%; justify-content: space-between; } .wo-name { font-size: 26px; } }
+@media (prefers-reduced-motion: reduce) { .wo-ring, .wo-face, .wo-center-ring { animation: none !important; } }
