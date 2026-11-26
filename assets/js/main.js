@@ -403,7 +403,10 @@ function initWork() {
   const limit = +grid.dataset.limit || 0;      // home: fixed number of cards + link to the Work page
   const per = +grid.dataset.perPage || 0;      // work page: cards per "View More Work" step
   const loadBtn = $('.work-load');
-  let key = 'all', pages = 1;
+  let key = tabs[0]?.dataset.filter || 'all', pages = 1;
+  const tabPageSize = 6;
+  let tabPage = 0;
+  let renderTabPage = () => {};
 
   const measureTags = () => $$('.work-tag', grid).forEach(t => {
     const l = $('.wt-label', t);
@@ -434,6 +437,8 @@ function initWork() {
   const apply = k => {
     key = k; pages = 1;
     tabs.forEach(t => { const on = t.dataset.filter === key; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
+    const selected = tabs.findIndex(t => t.dataset.filter === key);
+    if (selected >= 0) renderTabPage(Math.floor(selected / tabPageSize));
     moveInd();
     layout(true);
   };
@@ -441,22 +446,75 @@ function initWork() {
   layout(false);
   moveInd();
   const qcat = new URLSearchParams(location.search).get('cat'); // e.g. work.html?cat=social from the What We Do circle
-  if (qcat && tabs.some(t => t.dataset.filter === qcat)) apply(qcat);
   document.fonts?.ready.then(() => { moveInd(); measureTags(); });
   addEventListener('resize', () => { moveInd(); measureTags(); });
   tabs.forEach(t => t.addEventListener('click', () => apply(t.dataset.filter)));
   const prev = $('.tabs-prev'), next = $('.tabs-next');
   if (tabsEl && next) {
-    const step = () => Math.max(160, tabsEl.clientWidth * .7);
-    const sync = () => {
-      prev.disabled = tabsEl.scrollLeft < 4;
-      next.disabled = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
+    const pageCount = Math.max(1, Math.ceil(tabs.length / tabPageSize));
+    renderTabPage = page => {
+      tabPage = Math.max(0, Math.min(page, pageCount - 1));
+      const start = tabPage * tabPageSize, end = start + tabPageSize;
+      tabs.forEach((t, i) => {
+        const visible = i >= start && i < end;
+        t.hidden = !visible;
+        t.classList.toggle('is-page-hidden', !visible);
+        t.setAttribute('aria-hidden', String(!visible));
+      });
+      if (prev) {
+        prev.hidden = tabPage === 0;
+        prev.classList.toggle('is-page-hidden', tabPage === 0);
+        prev.disabled = tabPage === 0;
+      }
+      tabsEl.classList.toggle('is-last-page', tabPage === pageCount - 1);
+      next.disabled = tabPage === pageCount - 1;
+      moveInd();
     };
-    prev.addEventListener('click', () => tabsEl.scrollBy({ left: -step(), behavior: reduced ? 'auto' : 'smooth' }));
-    next.addEventListener('click', () => tabsEl.scrollBy({ left: step(), behavior: reduced ? 'auto' : 'smooth' }));
-    tabsEl.addEventListener('scroll', sync, { passive: true });
-    addEventListener('resize', sync);
-    sync();
+    prev?.addEventListener('click', () => renderTabPage(tabPage - 1));
+    next.addEventListener('click', () => renderTabPage(tabPage + 1));
+    let wheelLock = false;
+    tabsEl.addEventListener('wheel', e => {
+      const delta = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!delta || wheelLock) return;
+      const target = tabPage + (delta > 0 ? 1 : -1);
+      if (target < 0 || target >= pageCount) return;
+      e.preventDefault();
+      renderTabPage(target);
+      wheelLock = true;
+      setTimeout(() => { wheelLock = false; }, 350);
+    }, { passive: false });
+    let dragStart = 0, dragging = false, suppressClick = false;
+    tabsEl.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragStart = e.clientX;
+      dragging = true;
+      tabsEl.classList.add('is-dragging');
+      tabsEl.setPointerCapture?.(e.pointerId);
+    });
+    tabsEl.addEventListener('pointerup', e => {
+      if (!dragging) return;
+      const distance = e.clientX - dragStart;
+      dragging = false;
+      tabsEl.classList.remove('is-dragging');
+      if (Math.abs(distance) < 40) return;
+      e.preventDefault();
+      renderTabPage(tabPage + (distance < 0 ? 1 : -1));
+      suppressClick = true;
+      setTimeout(() => { suppressClick = false; }, 350);
+    });
+    tabsEl.addEventListener('pointercancel', () => {
+      dragging = false;
+      tabsEl.classList.remove('is-dragging');
+    });
+    tabsEl.addEventListener('click', e => {
+      if (!suppressClick) return;
+      e.preventDefault();
+      e.stopPropagation();
+      suppressClick = false;
+    }, true);
+    addEventListener('resize', () => renderTabPage(tabPage));
+    renderTabPage(0);
+    if (qcat && tabs.some(t => t.dataset.filter === qcat)) apply(qcat);
   }
   tabsEl?.addEventListener('keydown', e => {
     const i = tabs.indexOf(document.activeElement);
@@ -597,13 +655,15 @@ function initWwd() {
   };
   const close = () => {
     box.hidden = true; sec.classList.remove('is-open');
+    sec.classList.remove('is-paused');
     cards.forEach(c => c.classList.remove('is-active'));
     last?.focus({ preventScroll: true });
   };
-  cards.forEach((c, k) => c.addEventListener('click', () => open(k, c)));
+  cards.forEach((c, k) => c.addEventListener('click', () => { open(k, c); sec.classList.add('is-paused'); }));
   $('.wwd-close', box).addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) close(); });
   sec.addEventListener('click', e => { if (!box.hidden && !box.contains(e.target) && !e.target.closest('.wwd-card')) close(); });
+  sec.addEventListener('mouseleave', () => { if (!box.hidden) sec.classList.remove('is-paused'); });
   sec.classList.add('is-off');
   whileVisible(sec, () => sec.classList.remove('is-off'), () => sec.classList.add('is-off'), 0);
 }

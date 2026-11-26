@@ -5,7 +5,14 @@
    ========================================================================= */
 
 const SITE = {
-  name: 'Clicksone',
+  name: 'ClicksOne',
+  tagline: 'Ideas Into Impact.',
+  supportingLines: [
+    'Creative thinking. Intelligent technology. Meaningful results.',
+    'From ideas to digital experiences.'
+  ],
+  shortDescription: 'ClicksOne is a full-service creative, digital, and technology company helping businesses in the USA and international markets through design, software development, digital marketing, AI, and automation.',
+  positioning: 'ClicksOne is a creative and technology partner helping businesses build, innovate, and grow through strategic design, digital solutions, software development, marketing, and intelligent automation.',
   email: 'hello@Clicksone.agency',
   phone: '+1 (943) 206-0047',
   phoneHref: '+19432060047',
@@ -89,7 +96,7 @@ const SERVICES = [
 ];
 
 const CATEGORIES = [
-  ['all', 'All Work'], ['pitch', 'Pitch Decks'], ['uiux', 'UI/UX'], ['web', 'Web Design & Development'],
+  ['pitch', 'Pitch Decks'], ['uiux', 'UI/UX'], ['web', 'Web Design & Development'],
   ['branding', 'Branding'], ['editorial', 'Book & Editorial'], ['video', 'Video & Motion'],
 ];
 
@@ -322,7 +329,7 @@ const CHARACTERS = [
 const OLD_CAT = { pitch: 'decks', uiux: 'uiux', web: 'web', branding: 'branding', editorial: 'editorial', video: 'video' };
 PROJECTS.forEach(p => { p.cat = OLD_CAT[p.cat] || p.cat; });
 CATEGORIES.length = 0;
-CATEGORIES.push(['all', 'All Work'], ...CHARACTERS.map(ch => [ch.id, ch.name]));
+CATEGORIES.push(...CHARACTERS.map(ch => [ch.id, ch.name]));
 // Categories with fewer than four real projects are topped up with clearly labelled "coming soon" boxes.
 const SOON_CARDS = CHARACTERS.flatMap(ch => {
   const have = PROJECTS.filter(p => p.cat === ch.id).length;
@@ -393,7 +400,7 @@ const serviceOrbit = () => `
 const wwdSection = () => `
 <section class="wwd" id="services" aria-label="What we do">
   <div class="wwd-ring">
-    ${CHARACTERS.map((ch, i) => `<button type="button" class="wwd-card" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" data-cursor="${ch.name}"><span class="wwd-in"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"><span class="wwd-name">${ch.name}</span></span></button>`).join('')}
+    ${CHARACTERS.map((ch, i) => `<button type="button" class="wwd-card" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" data-cursor="${ch.name}"><span class="wwd-in"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"></span></button>`).join('')}
   </div>
   <div class="wwd-center">
     <p class="wwd-kicker">${CHARACTERS.length} specialists · one connected team</p>
@@ -529,16 +536,12 @@ const PARTIALS = {
       <span class="gm-orb gm-o1" aria-hidden="true"></span><span class="gm-orb gm-o2" aria-hidden="true"></span><span class="gm-orb gm-o3" aria-hidden="true"></span>
       <div class="cta-banner gm-card">
         <div class="gm-left">
-          <p class="gm-pill"><span class="cp-dot" aria-hidden="true"></span>Book a call</p>
           <h2>Need More Than <span class="gm-hl">One Service?</span></h2>
+          <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
+          <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
         </div>
         <div class="gm-right">
-          <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-          <div class="gm-actions">
-            ${btn('Start a Project', SITE.bookUrl, 'white', 'data-magnetic')}
-            <a class="btn btn-glass btn-solo" href="work.html">See Our Work</a>
-          </div>
-          <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
+          ${btn('Book a Call', SITE.bookUrl, 'glass', 'btn-solo data-magnetic')}
         </div>
       </div>
     </div>
@@ -584,10 +587,10 @@ const PARTIALS = {
     </div>`}
     ${opts.orbit ? workOrbit() : ''}
     <div class="tabs-row reveal">
-    <button type="button" class="tabs-arrow tabs-prev" aria-label="Previous categories">${I.arrow}</button>
+    <button type="button" class="tabs-arrow tabs-prev" aria-label="Previous categories" hidden>${I.arrow}</button>
     <div class="tabs" role="tablist" aria-label="Filter work by category">
       <span class="tab-ind" aria-hidden="true"></span>
-      ${CATEGORIES.map(([k, l], i) => `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}" style="--k:${i}">${l}</button>`).join('')}
+      ${CATEGORIES.map(([k, l], i) => { const ch = CHARACTERS.find(x => x.id === k); return `<button role="tab" type="button" class="tab${i === 0 ? ' is-active' : ''}" aria-selected="${i === 0}" data-filter="${k}" style="--k:${i}"><span class="tab-ava" aria-hidden="true"><img src="assets/characters/${ch?.img || k}.jpg" alt="" loading="lazy" decoding="async"></span><span class="tab-label">${l}</span></button>`; }).join('')}
     </div>
     <button type="button" class="tabs-arrow tabs-next" aria-label="More categories">${I.arrow}</button>
     </div>
@@ -849,7 +852,7 @@ const PARTIALS = {
 <footer class="site-footer">
   <div class="container">
     <div class="f-top">
-      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark-white.png" alt="Clicksone" width="141" height="36"></a>
+      <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
       <nav class="f-legal" aria-label="Legal">
         <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>
