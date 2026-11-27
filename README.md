@@ -4,7 +4,7 @@ Website for ClicksOne, a creative design agency (branding, UI/UX, web, pitch dec
 
 ## Pages
 
-`index.html` (Home), `about.html`, `services.html`, `work.html`, `app.html`, `blogs.html`, `contact.html`, `legal.html`, `404.html`
+`index.html` (Home), `about.html`, `services.html`, `work.html`, `blogs.html`, `contact.html`, `legal.html`, `404.html`
 
 ## Run locally
 

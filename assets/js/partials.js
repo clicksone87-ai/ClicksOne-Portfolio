@@ -197,6 +197,7 @@ const btn = (label, href, kind = 'primary', extra = '') =>
 
 const eyebrow = t => `<p class="eyebrow">${t}</p>`;
 const avatar = a => `<span class="avatar">${a.img ? `<img src="${a.img}" alt="">` : a.initials}</span>`;
+const logoAvatar = () => '<span class="avatar logo-av"><img src="assets/brand/emblem.png" alt=""></span>';
 const avatars = (n = 3, extra = '') => `<span class="avatars ${extra}" aria-hidden="true">${SITE.avatars.slice(0, n).map(avatar).join('')}</span>`;
 
 function mock(p) {
@@ -400,7 +401,7 @@ const serviceOrbit = () => `
 const wwdSection = () => `
 <section class="wwd" id="services" aria-label="What we do">
   <div class="wwd-ring">
-    ${CHARACTERS.map((ch, i) => `<button type="button" class="wwd-card" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" data-cursor="${ch.name}"><span class="wwd-in"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"></span></button>`).join('')}
+    ${CHARACTERS.map((ch, i) => `<button type="button" class="wwd-card" style="--a:${(i * 360 / CHARACTERS.length).toFixed(2)}deg" data-i="${i}" aria-label="${ch.name}" data-cursor="${ch.name}"><span class="wwd-in"><img src="assets/characters/${ch.img}.jpg" alt="" loading="lazy" decoding="async"><span class="wwd-name" aria-hidden="true">${ch.name}</span></span></button>`).join('')}
   </div>
   <div class="wwd-center">
     <p class="wwd-kicker">${CHARACTERS.length} specialists · one connected team</p>
@@ -485,12 +486,11 @@ const PARTIALS = {
           </div>
         </div>
         ${link('work.html', 'Our Work', 'work')}
-        ${link('app.html', 'App', 'app')}
         ${link('blogs.html', 'Blogs', 'blogs')}
-        ${link('contact.html', 'Contact Us', 'contact')}
       </nav>
       <div class="header-cta">
-        <a class="nav-book" href="${SITE.bookUrl}">${avatar(SITE.avatars[0])}<span>Book a call</span><i class="nb-dot" aria-hidden="true"></i></a>
+        <a class="nav-contact" href="contact.html">Contact Us</a>
+        <a class="nav-book" href="${SITE.bookUrl}">${logoAvatar()}<span>Book a call</span><i class="nb-dot" aria-hidden="true"></i></a>
         <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">${I.menu}</button>
       </div>
     </div>
@@ -502,10 +502,9 @@ const PARTIALS = {
       <a href="about.html" style="--k:1">About Us</a>
       <details style="--k:2"><summary>Services ${I.chev}</summary>${SERVICES.map(s => `<a href="services.html#${s.id}">${s.name}</a>`).join('')}<a href="services.html">All Services</a></details>
       <a href="work.html" style="--k:3">Our Work</a>
-      <a href="app.html" style="--k:4">App</a>
-      <a href="blogs.html" style="--k:5">Blogs</a>
-      <a href="contact.html" style="--k:6">Contact Us</a>
-      ${btn('Book a Call', SITE.bookUrl, 'primary', 'style="--k:7"')}
+      <a href="blogs.html" style="--k:4">Blogs</a>
+      <a href="contact.html" style="--k:5">Contact Us</a>
+      ${btn('Book a Call', SITE.bookUrl, 'primary', 'style="--k:6"')}
     </nav>
   </div>
 </header>`;
@@ -521,7 +520,7 @@ const PARTIALS = {
 </div>`,
 
   // "Book an intro call" text link used in the home hero.
-  'intro-link': () => `<a class="intro-link" href="${SITE.bookUrl}"><span class="avatars" aria-hidden="true"><span class="avatar logo-av"><img src="assets/brand/emblem.png" alt=""></span>${avatar(SITE.avatars[0])}</span><span>Book an intro call</span><span class="coin">${I.phone}</span></a>`,
+  'intro-link': () => `<a class="intro-link" href="${SITE.bookUrl}"><span class="avatars" aria-hidden="true">${logoAvatar()}</span><span>Book an intro call</span><span class="coin">${I.phone}</span></a>`,
 
   // Slim client marquee for the bottom of the home hero (separate from the shuffling logo wall).
   'hero-logos': () => `
@@ -532,19 +531,16 @@ const PARTIALS = {
   'cta-banner': () => `
 <section class="section-tight">
   <div class="container">
-    <div class="cta-gm reveal">
-      <span class="gm-orb gm-o1" aria-hidden="true"></span><span class="gm-orb gm-o2" aria-hidden="true"></span><span class="gm-orb gm-o3" aria-hidden="true"></span>
-      <div class="cta-banner gm-card">
-        <div class="gm-left">
-          <h2>Need More Than <span class="gm-hl">One Service?</span></h2>
-          <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-          <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
-        </div>
-        <div class="gm-right">
-          ${btn('Book a Call', SITE.bookUrl, 'glass', 'btn-solo data-magnetic')}
-        </div>
+    <section class="cg-banner reveal" data-cg-banner>
+      <canvas class="cg-canvas" aria-hidden="true"></canvas>
+      <span class="cg-glass-morph" aria-hidden="true"></span>
+      <div class="cg-content">
+        <h2>Need More Than <span>One Service?</span></h2>
+        <p>Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
+        <small>Reply within 24 hours. NDA available on request.</small>
+        <a class="cg-btn" href="${SITE.bookUrl}">Book a Call <i aria-hidden="true">${I.arrow}</i></a>
       </div>
-    </div>
+    </section>
   </div>
 </section>`,
 
@@ -633,6 +629,12 @@ const PARTIALS = {
         <div class="fb-leaf" style="z-index:3"><div class="fb-face fb-front">${fbRight(0)}</div><div class="fb-face fb-back">${fbLeft(1)}</div></div>
         <div class="fb-leaf" style="z-index:2"><div class="fb-face fb-front">${fbRight(1)}</div><div class="fb-face fb-back">${fbLeft(2)}</div></div>
         <span class="fb-spine"></span>
+      </div>
+      <div class="fb-mobile-card" aria-live="polite">
+        ${PILLARS.map((x, k) => `<article class="fb-mobile-panel${k === 0 ? ' is-active' : ''}" data-page="${k}">
+          <div class="fb-mobile-visual ${x.cls}"><div class="fb-mobile-art pillar-art">${x.art}</div><p class="fb-num">0${k + 1}</p><p class="pillar-k">${x.k}</p><h3>${x.h}</h3></div>
+          <div class="fb-mobile-copy"><p class="fb-lead">${x.more}</p><ul>${x.pts.map(t => `<li>${I.check}${t}</li>`).join('')}</ul><p class="fb-foot"><span>${x.k}</span><span>${k + 1} / ${PILLARS.length}</span></p></div>
+        </article>`).join('')}
       </div>
       <div class="fb-steps" role="group" aria-label="Choose a page">${PILLARS.map((x, k) => `<button type="button" class="fb-step${k === 0 ? ' is-active' : ''}" aria-pressed="${k === 0}"><b>0${k + 1}</b>${x.k}</button>`).join('')}</div>
     </div>
@@ -854,15 +856,13 @@ const PARTIALS = {
     <div class="f-top">
       <div><a class="logo" href="index.html" aria-label="Clicksone home"><img class="logo-img" src="assets/brand/wordmark.png" alt="Clicksone" width="141" height="36"></a>
         <p class="f-tag">Creative Design, Development &amp; Video Agency for Brands Ready to Lead Their Market.</p></div>
-      <nav class="f-legal" aria-label="Legal">
-        <a href="legal.html#refund">Refund Return</a><a href="legal.html#disclaimer">Disclaimer</a>
-        <a href="legal.html#privacy">Privacy Policy</a><a href="legal.html#terms">Terms &amp; Conditions</a>
-      </nav>
     </div>
     <div class="f-mid">
       <nav class="f-nav" aria-label="Footer">
-        <a href="about.html">About Us</a><a href="services.html">Services</a><a href="work.html">Our Work</a>
-        <a href="app.html">App</a><a href="blogs.html">Blogs</a><a href="contact.html">Contact Us</a>
+        <a href="about.html">About Us</a>
+        <a href="work.html">Our Work</a>
+        <a href="services.html">Services</a>
+        <a href="blogs.html">Blogs</a>
       </nav>
       <div class="f-col"><h3>Contact Us</h3>
         <a href="mailto:${SITE.email}">${I.mail}${SITE.email}</a>
@@ -871,11 +871,19 @@ const PARTIALS = {
         <p>Studio: Clicksone, 4th Floor, Damcon Tower, Plot#73, Executive Block Gulberg Green, Islamabad, 04403, Pakistan</p>
         <p>US Office: 1309 COFFEEN AVE STE 1200, SHERIDAN, WY, 82801, USA</p></div>
     </div>
-    <div class="f-bot">
+    <a class="f-email" href="mailto:${SITE.email}">${SITE.email}</a>
+    <div class="f-links-row">
+      <nav class="f-legal" aria-label="Legal">
+        <a href="legal.html#refund">Refund &amp; Return</a>
+        <a href="legal.html#disclaimer">Disclaimer</a>
+        <a href="legal.html#privacy">Privacy Policy</a>
+        <a href="legal.html#terms">Terms &amp; Conditions</a>
+      </nav>
       <div class="socials">${Object.entries(SITE.social).map(([k, u]) => `<a href="${u}" aria-label="${k}" target="_blank" rel="noopener">${I[k]}</a>`).join('')}</div>
+    </div>
+    <div class="f-bot">
       <p>Copyright © 2026 Clicksone.<br>All Rights Reserved.</p>
     </div>
-    <a class="f-email" href="mailto:${SITE.email}">${SITE.email}</a>
   </div>
 </footer>`,
 };

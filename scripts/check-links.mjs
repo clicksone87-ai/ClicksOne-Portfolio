@@ -27,7 +27,7 @@ for (const p of pages) {
 const ids = Object.fromEntries(pages.map(p => [p, new Set([...dom[p].matchAll(/\sid="([^"]+)"/g)].map(m => m[1]))]));
 
 let bad = 0, checked = 0;
-const required = ['site-header', 'book-pill', 'cta-banner', 'site-footer', 'href="app.html"'];
+const required = ['site-header', 'book-pill', 'cta-banner', 'site-footer'];
 for (const p of pages) {
   for (const r of required) if (!dom[p].includes(r)) { console.log(`✗ ${p}: missing global element "${r}"`); bad++; }
   for (const [, href] of dom[p].matchAll(/<a\b[^>]*\shref="([^"]*)"/g)) {

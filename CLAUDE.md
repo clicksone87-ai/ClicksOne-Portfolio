@@ -42,7 +42,6 @@ index.html        Home (all sections, in draft order)
 about.html        About Us
 services.html     Services (all 6 services, process, pricing)
 work.html         Our Work (12-card filterable grid)
-app.html          App page (linked from the nav "App" item)
 blogs.html        Blogs
 contact.html      Contact Us
 legal.html        Refund / Disclaimer / Privacy / Terms (placeholder text — replace before launch)
@@ -67,7 +66,7 @@ scripts/check-links.mjs  Headless-Chrome link + global-element checker
 ## 3. Mandatory global elements (every page)
 
 1. **Top navigation** (floating glass bar at the top, never a side rail): logo, `About Us`, `Services` (dropdown of
-   6 services), `Our Work`, `App` → `app.html`, `Blogs`, `Contact Us`, and `Book a Call →` CTA. A highlight pill
+   6 services), `Our Work`, `Blogs`, `Contact Us`, and `Book a Call →` CTA. A highlight pill
    glides between links; hides on scroll down, returns on scroll up; scroll-progress line. Mobile: full-screen menu.
    Because the bar floats, each page's first section uses `padding-top: var(--first-pad)`.
 2. **"Book a Call — Need More Than One Service?"** dark-purple banner (`data-partial="cta-banner"`) on every page.
@@ -108,7 +107,7 @@ scripts/check-links.mjs  Headless-Chrome link + global-element checker
 
 ## 6. Quality checklist before shipping
 
-- Every page: nav links, Services dropdown anchors, App link, banner, floating pill, footer all present and working.
+- Every page: nav links, Services dropdown anchors, banner, floating pill, footer all present and working.
 - Responsive at 1440 / 1024 / 768 / 390 px; no horizontal scroll.
 - Keyboard: focus-visible styles, dropdown and menu reachable, process panels expand on focus.
 - `node scripts/check-links.mjs` passes (validates every internal href and #anchor).

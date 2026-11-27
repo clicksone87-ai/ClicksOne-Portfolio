@@ -404,7 +404,7 @@ function initWork() {
   const per = +grid.dataset.perPage || 0;      // work page: cards per "View More Work" step
   const loadBtn = $('.work-load');
   let key = tabs[0]?.dataset.filter || 'all', pages = 1;
-  const tabPageSize = 6;
+  const tabPageSize = matchMedia('(max-width: 640px)').matches ? 2 : 6;
   let tabPage = 0;
   let renderTabPage = () => {};
 
@@ -563,15 +563,17 @@ function initRing() {
 }
 
 /* ---------- 11c. About: flip-book ----------
-   Pages turn by themselves as the book scrolls up the screen (Strategy → Design → Execution) and turn back
-   when scrolling up. The 01 / 02 / 03 buttons jump to a page. No pinning, so nothing overlaps.
+   Slow scrolling leaves Strategy visible and readable. Fast scrolling advances pages, with
+   a short lock between turns so the book never races through its content.
+   The 01 / 02 / 03 buttons jump to a page. No pinning, so nothing overlaps.
    Reduced motion or no GSAP: the plain list (.pillars-list) is shown instead. */
 function initFlipbook() {
   const stage = $('.fb-stage');
   if (!stage || reduced || !window.gsap) return;
-  const book = $('.flipbook', stage), leaves = $$('.fb-leaf', stage), steps = $$('.fb-step', stage);
+  const isMobile = matchMedia('(max-width: 640px)').matches;
+  const leaves = $$('.fb-leaf', stage), steps = $$('.fb-step', stage), mobilePanels = $$('.fb-mobile-panel', stage);
   document.documentElement.classList.add('has-flipbook');
-  let page = 0, scrollPage = 0;
+  let page = 0, lastY = scrollY, lastTime = performance.now(), lastFlipAt = 0;
   const order = () => leaves.forEach((l, k) => {
     const a = +gsap.getProperty(l, '--a') || 0;
     l.style.zIndex = a > 90 ? 10 + k : 20 - k; // turned pages stack on the left in reading order
@@ -581,19 +583,32 @@ function initFlipbook() {
     if (n === page) return;
     page = n;
     steps.forEach((s, k) => { const on = k === page; s.classList.toggle('is-active', on); s.setAttribute('aria-pressed', on); });
-    leaves.forEach((l, k) => gsap.to(l, { '--a': page > k ? 180 : 0, duration: .9, ease: 'power2.inOut', overwrite: true,
+    if (isMobile) mobilePanels.forEach((panel, k) => panel.classList.toggle('is-active', k === page));
+    else leaves.forEach((l, k) => gsap.to(l, { '--a': page > k ? 180 : 0, duration: .9, ease: 'power2.inOut', overwrite: true,
       delay: page > k ? k * .1 : (leaves.length - 1 - k) * .1, onUpdate: order }));
   };
-  // where the book's centre sits on screen decides the page: lower third → 01, middle → 02, upper → 03
-  const fromScroll = () => {
-    const r = book.getBoundingClientRect(), c = (r.top + r.height / 2) / innerHeight;
-    const n = c > .62 ? 0 : c > .38 ? 1 : 2;
-    if (n !== scrollPage) { scrollPage = n; go(n); } // only react when the scroll position crosses a band
+  const onScrollIntent = () => {
+    const now = performance.now(), y = scrollY, dy = y - lastY;
+    const dt = Math.max(16, now - lastTime);
+    lastY = y;
+    lastTime = now;
+    const speed = Math.abs(dy) / dt;
+    if (Math.abs(dy) < 3 || speed < .8 || now - lastFlipAt < 700) return;
+    lastFlipAt = now;
+    go(page + (dy > 0 ? 1 : -1));
+  };
+  const resetToStrategy = () => {
+    go(0);
+    lastY = scrollY;
+    lastTime = performance.now();
+    lastFlipAt = lastTime;
   };
   steps.forEach((s, k) => s.addEventListener('click', () => go(k)));
+  if (isMobile) return;
+  stage.addEventListener('pointerenter', resetToStrategy);
   let h = null;
   new IntersectionObserver(([e]) => {
-    if (e.isIntersecting && !h) { h = onScrollFrame(fromScroll); fromScroll(); }
+    if (e.isIntersecting && !h) { resetToStrategy(); h = onScrollFrame(onScrollIntent); }
     else if (!e.isIntersecting && h) { removeEventListener('scroll', h); h = null; }
   }).observe(stage);
 }
@@ -696,6 +711,14 @@ function initStack() {
 function initBanners() {
   $$('.cta-banner').forEach(b => b.classList.add('is-off'));
   $$('.cta-banner').forEach(b => whileVisible(b, () => b.classList.remove('is-off'), () => b.classList.add('is-off'), 0));
+}
+
+/* ---------- 11f. Three.js glass emblem CTA ---------- */
+function initGlassBanners() {
+  if (!document.querySelector('[data-cg-banner]')) return;
+  import('./cta-glass.js').then(({ initGlassBanners: mount }) => mount()).catch(error => {
+    console.warn('Glass CTA animation unavailable; using the CSS fallback.', error);
+  });
 }
 
 /* ---------- 6. Services switcher ---------- */
@@ -1028,6 +1051,7 @@ initCharacters();
 initWwd();
 initOrbit();
 initBanners();
+initGlassBanners();
 initServices();
 initImpact();
 initProcess();
