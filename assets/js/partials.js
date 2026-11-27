@@ -538,9 +538,9 @@ const PARTIALS = {
           <h2>Need More Than <span class="gm-hl">One Service?</span></h2>
           <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
           <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
-        </div>
-        <div class="gm-right">
-          ${btn('Book a Call', SITE.bookUrl, 'glass', 'btn-solo data-magnetic')}
+          <div class="gm-actions">
+            ${btn('Book a Call', SITE.bookUrl, 'glass', 'btn-solo data-magnetic')}
+          </div>
         </div>
       </div>
     </div>
