@@ -713,14 +713,6 @@ function initBanners() {
   $$('.cta-banner').forEach(b => whileVisible(b, () => b.classList.remove('is-off'), () => b.classList.add('is-off'), 0));
 }
 
-/* ---------- 11f. Three.js glass emblem CTA ---------- */
-function initGlassBanners() {
-  if (!document.querySelector('[data-cg-banner]')) return;
-  import('./cta-glass.js').then(({ initGlassBanners: mount }) => mount()).catch(error => {
-    console.warn('Glass CTA animation unavailable; using the CSS fallback.', error);
-  });
-}
-
 /* ---------- 6. Services switcher ---------- */
 function initServices() {
   const sw = $('.svc-switch');
@@ -1051,7 +1043,6 @@ initCharacters();
 initWwd();
 initOrbit();
 initBanners();
-initGlassBanners();
 initServices();
 initImpact();
 initProcess();

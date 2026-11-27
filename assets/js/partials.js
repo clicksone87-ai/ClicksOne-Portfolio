@@ -531,16 +531,19 @@ const PARTIALS = {
   'cta-banner': () => `
 <section class="section-tight">
   <div class="container">
-    <section class="cg-banner reveal" data-cg-banner>
-      <canvas class="cg-canvas" aria-hidden="true"></canvas>
-      <span class="cg-glass-morph" aria-hidden="true"></span>
-      <div class="cg-content">
-        <h2>Need More Than <span>One Service?</span></h2>
-        <p>Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
-        <small>Reply within 24 hours. NDA available on request.</small>
-        <a class="cg-btn" href="${SITE.bookUrl}">Book a Call <i aria-hidden="true">${I.arrow}</i></a>
+    <div class="cta-gm reveal">
+      <span class="gm-orb gm-o1" aria-hidden="true"></span><span class="gm-orb gm-o2" aria-hidden="true"></span><span class="gm-orb gm-o3" aria-hidden="true"></span>
+      <div class="cta-banner gm-card">
+        <div class="gm-left">
+          <h2>Need More Than <span class="gm-hl">One Service?</span></h2>
+          <p class="gm-text">Combine brand, product, web, presentations, editorial, and video support around one connected project.</p>
+          <p class="gm-note">Reply within 24 hours. NDA available on request.</p>
+        </div>
+        <div class="gm-right">
+          ${btn('Book a Call', SITE.bookUrl, 'glass', 'btn-solo data-magnetic')}
+        </div>
       </div>
-    </section>
+    </div>
   </div>
 </section>`,
 
